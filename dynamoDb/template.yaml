@@ -40,11 +40,13 @@ Parameters:
   firstNameJobTitleLsi: 
     Type: String
     Description: value of input table lsi
-    Default: !Join [ "-" , [ !Ref firstName , !Ref jobTitle , "LSI" ]]
+    Default: "first_name-job_title-LSI"
+    # Default: !Join [ "-" , [ !Ref firstName , !Ref jobTitle , "LSI" ]]
   fullNameProfessionLsi: 
     Type: String
     Description: value of output table lsi
-    Default: !Join [ "-" , [ !Ref fullName , !Ref profession , "LSI" ]]
+    Default: "full_name-profession-LSI"
+    # Default: !Join [ "-" , [ !Ref fullName , !Ref profession , "LSI" ]]
 
 Resources:
   InputDataTable:

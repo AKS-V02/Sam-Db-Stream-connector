@@ -8,9 +8,9 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.BatchWriteItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.TableWriteItems;
-import com.amazonaws.services.dynamodbv2.model.PutItemResult;
 import com.amazonaws.services.dynamodbv2.model.WriteRequest;
 
 public class DbConnection {
@@ -24,9 +24,9 @@ public class DbConnection {
         this.dynamoDB = new DynamoDB(client);
     }
 
-    public PutItemResult insertRecord(Item item, String tableName){
+    public PutItemOutcome insertRecord(Item item, String tableName){
         Table table = dynamoDB.getTable(tableName);
-        return table.putItem(item).getPutItemResult();
+        return table.putItem(item);
     }
 
     public Map<String, List<WriteRequest>> insertRecords(List<Item> items, String tableName){

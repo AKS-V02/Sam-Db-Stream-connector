@@ -1,12 +1,10 @@
 package com.input.utils;
 
+import java.util.List;
 import java.util.Map;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.ItemCollection;
-import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition;
-import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
@@ -39,15 +37,15 @@ public class ProcessRequestUtil {
     }
 
 
-    public ItemCollection<QueryOutcome> getRecordsByPartitionkey(String partitionkeyValue, String lastPartitionkeyVal, String lastSortkeyVal){
+    public List<Item> getRecordsByPartitionkey(String partitionkeyValue, String lastPartitionkeyVal, String lastSortkeyVal){
         QuerySpec spec = new QuerySpec().withHashKey(partitionKey, partitionkeyValue).withMaxResultSize(3);
         if (!lastPartitionkeyVal.equalsIgnoreCase("") && !lastSortkeyVal.equalsIgnoreCase("")){
             spec.withExclusiveStartKey(partitionKey,lastPartitionkeyVal,sortKey,lastSortkeyVal);
         }  
-        return this.dbConnection.quiryRecords(spec, tableName);
+        return this.dbConnection.quiryRecords(spec, tableName).firstPage().getLowLevelResult().getItems();
     }
 
-    public ItemCollection<QueryOutcome> getRecordsByLsi(String partitionKeyValue, String lsiSortkeyValue, String lastPartitionkeyVal, String lastSortkeyVal){
+    public List<Item> getRecordsByLsi(String partitionKeyValue, String lsiSortkeyValue, String lastPartitionkeyVal, String lastSortkeyVal){
         QuerySpec spec = new QuerySpec().withHashKey(partitionKey, partitionKeyValue)
                                         .withRangeKeyCondition(new RangeKeyCondition(lsiSortKey).eq(lsiSortkeyValue))                    
                                         .withMaxResultSize(3);
@@ -55,16 +53,16 @@ public class ProcessRequestUtil {
             spec.withExclusiveStartKey(partitionKey,lastPartitionkeyVal,lsiSortKey,lastSortkeyVal);
         }                                
         
-        return this.dbConnection.quiryRecords(spec, tableName, lsiName);
+        return this.dbConnection.quiryRecords(spec, tableName, lsiName).firstPage().getLowLevelResult().getItems();
     }
 
     
-    public ItemCollection<ScanOutcome> scaneRecords(String lastPartitionkeyVal, String lastSortkeyVal){
+    public List<Item> scaneRecords(String lastPartitionkeyVal, String lastSortkeyVal){
         ScanSpec spec = new ScanSpec().withMaxResultSize(3);
         if (!lastPartitionkeyVal.equalsIgnoreCase("") && !lastSortkeyVal.equalsIgnoreCase("")){
             spec.withExclusiveStartKey(partitionKey,lastPartitionkeyVal,sortKey,lastSortkeyVal);
         }  
-        return this.dbConnection.scanRecords(spec, tableName);
+        return this.dbConnection.scanRecords(spec, tableName).firstPage().getLowLevelResult().getItems();
     }
 
 }

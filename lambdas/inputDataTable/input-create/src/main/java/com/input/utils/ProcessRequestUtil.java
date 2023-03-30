@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.model.PutItemResult;
+import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.model.WriteRequest;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -35,7 +35,7 @@ public class ProcessRequestUtil {
         return headers;
     }
 
-    public PutItemResult saveSingleRecord(String body){
+    public PutItemOutcome saveSingleRecord(String body){
 
         JsonObject jsonObj = JsonParser.parseString(body).getAsJsonObject();
 
@@ -44,12 +44,12 @@ public class ProcessRequestUtil {
 
     public Map<String, List<WriteRequest>> saveMultipleRecord(String body){
 
-        JsonObject jsonObj = JsonParser.parseString(body).getAsJsonObject();
+        JsonElement jsonObj = JsonParser.parseString(body);
         return  dbConnection.insertRecords(getRecordItems(jsonObj), tableName);
     }
 
 
-    private List<Item> getRecordItems(JsonObject jsonObject){
+    private List<Item> getRecordItems(JsonElement jsonObject){
         List<Item> itemList = new ArrayList<>();
         for(JsonElement obj : jsonObject.getAsJsonArray()){           
             itemList.add(getRecordItem(obj.getAsJsonObject()));
