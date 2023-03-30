@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: > 
+  new app test template
+
+Resources: 
+  DynamoDB: 
+    Type: AWS::Serverless::Application
+    Properties: 
+      Location: dynamoDb\template.yaml
+  SQS: 
+    Type: AWS::Serverless::Application
+    Properties: 
+      Location: sqs\template.yaml
+  LambdaFunctions:
+    Type: AWS::Serverless::Application
+    Properties: 
+      Location: lambdas\template.yaml
+      Parameters:
+        InputTable: !GetAtt DynamoDB.Outputs.InputDataDynamoDbTable
+        InputTablePrimaryKey: !GetAtt DynamoDB.Outputs.InputTablePartitionkey
+        InputTableSortKey: !GetAtt DynamoDB.Outputs.InputTableSortkey
+        InputTableLSIKey: !GetAtt DynamoDB.Outputs.InputTableLsikey
+        OutputTable: !GetAtt DynamoDB.Outputs.OutputDataDynamoDbTable
+        OutputTablePrimaryKey: !GetAtt DynamoDB.Outputs.OutputTablePartitionkey
+        OutputTableSortKey: !GetAtt DynamoDB.Outputs.OutputTableSortkey
+        OutputTableLSIKey: !GetAtt DynamoDB.Outputs.OutputTableLsikey
+        joltTable: !GetAtt DynamoDB.Outputs.JoltTableDynamodb
+        joltTablePrimaryKey: !GetAtt DynamoDB.Outputs.JoltTablePartitionkey
+        joltTableSortKey: !GetAtt DynamoDB.Outputs.JoltTableSortkey
+        InputTableStreamArn: !GetAtt DynamoDB.Outputs.InputDataDynamoDbTableStreamArn
+        QueUrl: !GetAtt SQS.Outputs.MyQueueUrl
+        QueArn: !GetAtt SQS.Outputs.MyQueueArn
+        DLQArn: !GetAtt SQS.Outputs.MyDLQArn
+        QueName: !GetAtt SQS.Outputs.MyQueueName
+        DLQName: !GetAtt SQS.Outputs.MyDLQName
+        InputTableLsi: !GetAtt DynamoDB.Outputs.InputTableLsi
+        OutputTableLsi: !GetAtt DynamoDB.Outputs.OutputTableLsi 
+
+Outputs:
+  ApiEndPoint:
+    Value: 
+      !GetAtt LambdaFunctions.Outputs.commonEndpoint
+    Description: Api endpoint.
