@@ -7,9 +7,9 @@ POST {{endpoint}}/input
 Content-Type: application/json
 
 {
-  "first_name": "man",
+  "first_name": "ksksksk",
   "last_name": "oldpppp",
-  "job_title": "worqqqqk",
+  "job_title": "msmms",
   "from_source": "me",
   "to_source": "db"
 }
