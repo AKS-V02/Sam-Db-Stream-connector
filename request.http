@@ -7,7 +7,7 @@ POST {{endpoint}}/input
 Content-Type: application/json
 
 {
-  "first_name": "newjsjsks",
+  "first_name": "man",
   "last_name": "oldpppp",
   "job_title": "worqqqqk",
   "from_source": "me",
