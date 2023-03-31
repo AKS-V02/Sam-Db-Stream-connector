@@ -190,7 +190,7 @@ Resources:
           TABLE_NAME: !Ref joltTable
           PRIMARY_KEY: !Ref joltTablePrimaryKey
           SORT_KEY: !Ref joltTableSortKey
-      # ReservedConcurrentExecutions: 30
+      ReservedConcurrentExecutions: 100
       Events:
         InputDDBTable:
           Type: DynamoDB
@@ -230,7 +230,7 @@ Resources:
           PRIMARY_KEY: !Ref OutputTablePrimaryKey
           SORT_KEY: !Ref OutputTableSortKey
           LSI_KEY: !Ref OutputTableLSIKey
-      # ReservedConcurrentExecutions: 30
+      ReservedConcurrentExecutions: 100
       Events:
         MySQSEvent:
           Type: SQS
