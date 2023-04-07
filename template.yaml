@@ -12,6 +12,10 @@ Resources:
     Type: AWS::Serverless::Application
     Properties: 
       Location: sqs\template.yaml
+  AuroraDB: 
+    Type: AWS::Serverless::Application
+    Properties: 
+      Location: auroraDb\template.yaml
   LambdaFunctions:
     Type: AWS::Serverless::Application
     Properties: 
@@ -35,7 +39,10 @@ Resources:
         QueName: !GetAtt SQS.Outputs.MyQueueName
         DLQName: !GetAtt SQS.Outputs.MyDLQName
         InputTableLsi: !GetAtt DynamoDB.Outputs.InputTableLsi
-        OutputTableLsi: !GetAtt DynamoDB.Outputs.OutputTableLsi 
+        OutputTableLsi: !GetAtt DynamoDB.Outputs.OutputTableLsi
+        SecretArn: !GetAtt AuroraDB.Outputs.SecretArn
+        DatabaseName: !GetAtt AuroraDB.Outputs.DBName
+        DBClusterArn: !GetAtt AuroraDB.Outputs.DBClusterArn
 
 Outputs:
   ApiEndPoint:

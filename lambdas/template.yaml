@@ -62,6 +62,15 @@ Parameters:
   InputTableLsi: 
     Type: String
     Description: Reference to Input Table Sort Key
+  DBClusterArn: 
+    Type: String
+    Description: Reference to RDS Db Cluster
+  DatabaseName: 
+    Type: String
+    Description: Reference to RDS DatabaseName
+  SecretArn: 
+    Type: String
+    Description: Reference to SecretArn
 
 Globals:
   Function:
@@ -248,6 +257,41 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${SqsListner}
       RetentionInDays: 1
+  
+  RdsQuiry:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: RdsDatabase\rdsQuiryStatement
+      FunctionName: !Join [ "-" , [ !Sub '${DatabaseName}-RdsQuiry' , !Select [ 7, !Split [ "-", !Ref 'AWS::StackId' ] ] ] ]
+      Handler: com.functions.handler.QuiryStatement::handleRequest
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref SecretArn
+        - Statement:
+          - Effect: Allow
+            Action: 'rds-data:ExecuteStatement'
+            Resource: !Ref DBClusterArn
+      Environment:
+        Variables:
+          DBClusterArn: !Ref DBClusterArn
+          DBName: !Ref DatabaseName
+          SecretArn: !Ref SecretArn
+      Events:
+        ApiEvents:
+          Type: Api
+          Properties:
+            Path: /rdsconnect
+            Method: GET
+            RestApiId: !Ref commonAPIGateway
+  
+  RdsQuiryLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: 
+      - RdsQuiry
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${RdsQuiry}
+      RetentionInDays: 1
+      
   
 Outputs:
   commonEndpoint:

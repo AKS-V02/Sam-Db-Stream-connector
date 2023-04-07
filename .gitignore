@@ -2,13 +2,5 @@
 .metadata
 .vscode
 samconfig.toml
-lambdas/inputDataTable/input-create/dependency-reduced-pom.xml
-lambdas/inputDataTable/input-create/target/
-lambdas/inputDataTable/input-read/dependency-reduced-pom.xml
-lambdas/inputDataTable/input-read/target/
-lambdas/outputDataTable/output-read/dependency-reduced-pom.xml
-lambdas/outputDataTable/output-read/target/
-lambdas/sqsTrigger/dependency-reduced-pom.xml
-lambdas/sqsTrigger/target/
-lambdas/sqslistner/dependency-reduced-pom.xml
-lambdas/sqslistner/target/
+*dependency-reduced-pom.xml
+*target/
