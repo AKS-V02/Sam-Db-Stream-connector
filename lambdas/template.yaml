@@ -62,15 +62,21 @@ Parameters:
   InputTableLsi: 
     Type: String
     Description: Reference to Input Table Sort Key
-  DBClusterArn: 
+  configsetName:  
     Type: String
-    Description: Reference to RDS Db Cluster
-  DatabaseName: 
+    Description: Reference to configsetName for ses
+  templateName:
     Type: String
-    Description: Reference to RDS DatabaseName
-  SecretArn: 
-    Type: String
-    Description: Reference to SecretArn
+    Description: Reference to templateName for ses
+  # DBClusterArn: 
+  #   Type: String
+  #   Description: Reference to RDS Db Cluster
+  # DatabaseName: 
+  #   Type: String
+  #   Description: Reference to RDS DatabaseName
+  # SecretArn: 
+  #   Type: String
+  #   Description: Reference to SecretArn
 
 Globals:
   Function:
@@ -83,7 +89,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: dev
-      Name: common-api-gateway
+      Name: sam-app-api
 
   InputDataCreate:
     Type: AWS::Serverless::Function
@@ -258,38 +264,79 @@ Resources:
       LogGroupName: !Sub /aws/lambda/${SqsListner}
       RetentionInDays: 1
   
-  RdsQuiry:
+  # RdsQuiry:
+  #   Type: 'AWS::Serverless::Function'
+  #   Properties:
+  #     CodeUri: RdsDatabase\rdsQuiryStatement
+  #     FunctionName: !Join [ "-" , [ !Sub '${DatabaseName}-RdsQuiry' , !Select [ 7, !Split [ "-", !Ref 'AWS::StackId' ] ] ] ]
+  #     Handler: com.rds.handler.QuiryStatement::handleRequest
+  #     Policies:
+  #       - AWSSecretsManagerGetSecretValuePolicy:
+  #           SecretArn: !Ref SecretArn
+  #       - Statement:
+  #         - Effect: Allow
+  #           Action: 'rds-data:ExecuteStatement'
+  #           Resource: !Ref DBClusterArn
+  #     Environment:
+  #       Variables:
+  #         DBClusterArn: !Ref DBClusterArn
+  #         DBName: !Ref DatabaseName
+  #         SecretArn: !Ref SecretArn
+  #     Events:
+  #       ApiEvents:
+  #         Type: Api
+  #         Properties:
+  #           Path: /rdsconnect
+  #           Method: GET
+  #           RestApiId: !Ref commonAPIGateway
+  
+  # RdsQuiryLogGroup:
+  #   Type: AWS::Logs::LogGroup
+  #   DependsOn: 
+  #     - RdsQuiry
+  #   Properties:
+  #     LogGroupName: !Sub /aws/lambda/${RdsQuiry}
+  #     RetentionInDays: 1
+  
+  SendEmailFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      CodeUri: RdsDatabase\rdsQuiryStatement
-      FunctionName: !Join [ "-" , [ !Sub '${DatabaseName}-RdsQuiry' , !Select [ 7, !Split [ "-", !Ref 'AWS::StackId' ] ] ] ]
-      Handler: com.functions.handler.QuiryStatement::handleRequest
+      CodeUri: sendEmail
+      FunctionName: !Join [ "-" , [ !Sub '${templateName}-Template-Email' , !Select [ 7, !Split [ "-", !Ref 'AWS::StackId' ] ] ] ]
+      Handler: com.send.handler.SendEmail::handleRequest
       Policies:
-        - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: !Ref SecretArn
+        - SESBulkTemplatedCrudPolicy_v2:
+            IdentityName: "*"
+            TemplateName: !Ref templateName
         - Statement:
-          - Effect: Allow
-            Action: 'rds-data:ExecuteStatement'
-            Resource: !Ref DBClusterArn
+            - Effect: Allow
+              Action:
+                - "ses:SendEmail"
+                - "ses:SendTemplatedEmail"
+                - "ses:SendRawEmail"
+                - "ses:SendBulkTemplatedEmail"
+              Resource: 
+                - !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${configsetName}"
+                # - !Sub "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
+                # - !Sub "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:template/${templateName}"
       Environment:
         Variables:
-          DBClusterArn: !Ref DBClusterArn
-          DBName: !Ref DatabaseName
-          SecretArn: !Ref SecretArn
+          Template: !Ref templateName
+          ConfigsetName: !Ref configsetName
       Events:
         ApiEvents:
           Type: Api
           Properties:
-            Path: /rdsconnect
-            Method: GET
+            Path: /sendemail
+            Method: POST
             RestApiId: !Ref commonAPIGateway
   
-  RdsQuiryLogGroup:
+  SendEmailFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     DependsOn: 
-      - RdsQuiry
+      - SendEmailFunction
     Properties:
-      LogGroupName: !Sub /aws/lambda/${RdsQuiry}
+      LogGroupName: !Sub /aws/lambda/${SendEmailFunction}
       RetentionInDays: 1
       
   

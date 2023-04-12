@@ -17,6 +17,7 @@
     <module>RdsDatabase/rdsDdlStatement</module>
     <module>RdsDatabase/rdsDmlStatement</module>
     <module>RdsDatabase/rdsQuiryStatement</module>
+    <module>sendEmail</module>
     <module>sqslistner</module>
     <module>sqsTrigger</module>
   </modules>

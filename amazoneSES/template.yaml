@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An Amazon SES configuration
+
+Parameters:
+  ConfigSetName:
+    Description: Amazone SES ConfigSet Name.
+    Type: String
+    Default: TestConfigSet
+  # SenderEmailId:
+  #   Description: Amazone SES email id for identity.
+  #   Type: String
+  #   Default: meiwapraweko-1551@yopmail.com
+  # ReciverEmailId:
+  #   Description: Amazone SES email id for identity.
+  #   Type: String
+  #   Default: zattaddotroudoi-7836@yopmail.com
+  TemplateName:
+    Type: String
+    Default: defaultTemplate
+  SubjectPart:
+    Type: String
+    Default: "Sending Email From {{sender.name}} to {{recever.name}} using amazone ses"
+  HtmlPart:
+    Type: String
+    Default: "<h1>Amazone SES Test Mail</h1><p>Created Resoursces Using SAM:</p><ul>{{#each deployedresourses}}<li>{{resourse}}</li>{{/each}}</ul><p>Reference link used is this <a href=https://docs.aws.amazon.com/ses/latest/dg/send-personalized-email-advanced.html#:~:text=%7B%0A%20%20%22Template%22,meta.userId%7D%7D%22%0A%20%20%7D%0A%7D>amazone example</a>.</p>"
+  TextPart:
+    Type: String
+    Default: "Amazone SES Test Mail\n\nCreated Resoursces Using SAM::\n{{#each deployedresourses}}- {{resourse}}\n{{/each}}\nReference link used is this https://docs.aws.amazon.com/ses/latest/dg/send-personalized-email-advanced.html#:~:text=%7B%0A%20%20%22Template%22,meta.userId%7D%7D%22%0A%20%20%7D%0A%7D"
+  
+  
+
+Resources:
+  SesConfigSet:
+    Type: 'AWS::SES::ConfigurationSet'
+    Properties:
+      Name: !Ref  ConfigSetName
+      
+  # SesEmailIdentity:
+  #   Type: AWS::SES::EmailIdentity
+  #   Properties:
+  #     ConfigurationSetAttributes:
+  #       ConfigurationSetName: !Ref SesConfigSet
+  #     EmailIdentity: !Ref SenderEmailId
+  
+  # SesReciverEmailIdentity:
+  #   Type: AWS::SES::EmailIdentity
+  #   Properties:
+  #     ConfigurationSetAttributes:
+  #       ConfigurationSetName: !Ref SesConfigSet
+  #     EmailIdentity: !Ref ReciverEmailId
+
+  SesTemplate:
+    Type: AWS::SES::Template
+    Properties:
+      Template:
+        TemplateName: !Ref TemplateName
+        SubjectPart: !Ref SubjectPart
+        TextPart: !Ref TextPart
+        HtmlPart: !Ref HtmlPart
+
+
+
+Outputs:
+  configsetName:
+    Description: config set name
+    Value: !Ref SesConfigSet
+  # SenderEmailIdentityName:
+  #   Description: identity name 
+  #   Value: !Ref SesEmailIdentity
+  # ReciverEmailIdentityName:
+  #   Description: identity name 
+  #   Value: !Ref SesReciverEmailIdentity
+  templateName:
+    Description: identity name 
+    Value: !Ref TemplateName
