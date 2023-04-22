@@ -12,10 +12,10 @@ Resources:
     Type: AWS::Serverless::Application
     Properties: 
       Location: sqs\template.yaml
-  # AuroraDB: 
-  #   Type: AWS::Serverless::Application
-  #   Properties: 
-  #     Location: auroraDb\template.yaml
+  AuroraDB: 
+    Type: AWS::Serverless::Application
+    Properties: 
+      Location: auroraDb\template.yaml
   amazoneSES: 
     Type: AWS::Serverless::Application
     Properties: 
@@ -46,12 +46,16 @@ Resources:
         OutputTableLsi: !GetAtt DynamoDB.Outputs.OutputTableLsi
         configsetName: !GetAtt amazoneSES.Outputs.configsetName
         templateName: !GetAtt amazoneSES.Outputs.templateName
-        # SecretArn: !GetAtt AuroraDB.Outputs.SecretArn
-        # DatabaseName: !GetAtt AuroraDB.Outputs.DBName
-        # DBClusterArn: !GetAtt AuroraDB.Outputs.DBClusterArn
+        SecretArn: !GetAtt AuroraDB.Outputs.SecretArn
+        DatabaseName: !GetAtt AuroraDB.Outputs.DBName
+        DBClusterArn: !GetAtt AuroraDB.Outputs.DBClusterArn
 
 Outputs:
   ApiEndPoint:
     Value: 
       !GetAtt LambdaFunctions.Outputs.commonEndpoint
     Description: Api endpoint.
+  RDSSecreateArn:
+    Value: 
+      !GetAtt AuroraDB.Outputs.SecretArn
+    Description: AuroraDb Secreate ARN.

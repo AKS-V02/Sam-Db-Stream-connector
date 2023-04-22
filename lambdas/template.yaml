@@ -68,15 +68,15 @@ Parameters:
   templateName:
     Type: String
     Description: Reference to templateName for ses
-  # DBClusterArn: 
-  #   Type: String
-  #   Description: Reference to RDS Db Cluster
-  # DatabaseName: 
-  #   Type: String
-  #   Description: Reference to RDS DatabaseName
-  # SecretArn: 
-  #   Type: String
-  #   Description: Reference to SecretArn
+  DBClusterArn: 
+    Type: String
+    Description: Reference to RDS Db Cluster
+  DatabaseName: 
+    Type: String
+    Description: Reference to RDS DatabaseName
+  SecretArn: 
+    Type: String
+    Description: Reference to SecretArn
 
 Globals:
   Function:
@@ -264,39 +264,137 @@ Resources:
       LogGroupName: !Sub /aws/lambda/${SqsListner}
       RetentionInDays: 1
   
-  # RdsQuiry:
-  #   Type: 'AWS::Serverless::Function'
-  #   Properties:
-  #     CodeUri: RdsDatabase\rdsQuiryStatement
-  #     FunctionName: !Join [ "-" , [ !Sub '${DatabaseName}-RdsQuiry' , !Select [ 7, !Split [ "-", !Ref 'AWS::StackId' ] ] ] ]
-  #     Handler: com.rds.handler.QuiryStatement::handleRequest
-  #     Policies:
-  #       - AWSSecretsManagerGetSecretValuePolicy:
-  #           SecretArn: !Ref SecretArn
-  #       - Statement:
-  #         - Effect: Allow
-  #           Action: 'rds-data:ExecuteStatement'
-  #           Resource: !Ref DBClusterArn
-  #     Environment:
-  #       Variables:
-  #         DBClusterArn: !Ref DBClusterArn
-  #         DBName: !Ref DatabaseName
-  #         SecretArn: !Ref SecretArn
-  #     Events:
-  #       ApiEvents:
-  #         Type: Api
-  #         Properties:
-  #           Path: /rdsconnect
-  #           Method: GET
-  #           RestApiId: !Ref commonAPIGateway
+  RdsDdlStatement:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: RdsDatabase\rdsDdlStatement
+      FunctionName: !Join [ "-" , [ !Sub '${DatabaseName}-RdsDdlStatement' , !Select [ 7, !Split [ "-", !Ref 'AWS::StackId' ] ] ] ]
+      Handler: com.rds.handler.DdlStatement::handleRequest
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref SecretArn
+        - Statement:
+          - Effect: Allow
+            Action: 
+              - 'rds-data:ExecuteStatement'
+              # - "rds-data:BatchExecuteStatement"
+              # - "rds-data:BeginTransaction"
+              # - "rds-data:CommitTransaction"
+              # - "rds-data:RollbackTransaction"
+            Resource: !Ref DBClusterArn
+      Environment:
+        Variables:
+          DBClusterArn: !Ref DBClusterArn
+          DBName: !Ref DatabaseName
+          SecretArn: !Ref SecretArn
+      Events:
+        ApiEvents:
+          Type: Api
+          Properties:
+            Path: /rdsconnect/{proxy+}
+            Method: POST
+            RestApiId: !Ref commonAPIGateway
   
-  # RdsQuiryLogGroup:
-  #   Type: AWS::Logs::LogGroup
-  #   DependsOn: 
-  #     - RdsQuiry
-  #   Properties:
-  #     LogGroupName: !Sub /aws/lambda/${RdsQuiry}
-  #     RetentionInDays: 1
+  RdsDdlStatementLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: 
+      - RdsDdlStatement
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${RdsDdlStatement}
+      RetentionInDays: 1
+
+
+  RdsDmlStatement:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: RdsDatabase\rdsDmlStatement
+      FunctionName: !Join [ "-" , [ !Sub '${DatabaseName}-RdsDmlStatement' , !Select [ 7, !Split [ "-", !Ref 'AWS::StackId' ] ] ] ]
+      Handler: com.rds.handler.DmlStatement::handleRequest
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref SecretArn
+        - Statement:
+          - Effect: Allow
+            Action:
+              - 'rds-data:ExecuteStatement'
+              - "rds-data:BatchExecuteStatement"
+              # - "rds-data:BeginTransaction"
+              # - "rds-data:CommitTransaction"
+              # - "rds-data:RollbackTransaction"
+            Resource: !Ref DBClusterArn
+      Environment:
+        Variables:
+          DBClusterArn: !Ref DBClusterArn
+          DBName: !Ref DatabaseName
+          SecretArn: !Ref SecretArn
+      Events:
+        ApiEvents1:
+          Type: Api
+          Properties:
+            Path: /rdsconnect/{proxy+}
+            Method: PUT
+            RestApiId: !Ref commonAPIGateway
+        ApiEvents2:
+          Type: Api
+          Properties:
+            Path: /rdsconnect/{proxy+}
+            Method: DELETE
+            RestApiId: !Ref commonAPIGateway
+            
+  RdsDmlStatementLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: 
+      - RdsDmlStatement
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${RdsDmlStatement}
+      RetentionInDays: 1
+
+
+
+  RdsQuiry:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: RdsDatabase\rdsQuiryStatement
+      FunctionName: !Join [ "-" , [ !Sub '${DatabaseName}-RdsQuiry' , !Select [ 7, !Split [ "-", !Ref 'AWS::StackId' ] ] ] ]
+      Handler: com.rds.handler.QuiryStatement::handleRequest
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref SecretArn
+        - Statement:
+          - Effect: Allow
+            Action:
+              - 'rds-data:ExecuteStatement'
+              # - "rds-data:BatchExecuteStatement"
+              # - "rds-data:BeginTransaction"
+              # - "rds-data:CommitTransaction"
+              # - "rds-data:RollbackTransaction"
+            Resource: !Ref DBClusterArn
+      Environment:
+        Variables:
+          DBClusterArn: !Ref DBClusterArn
+          DBName: !Ref DatabaseName
+          SecretArn: !Ref SecretArn
+      Events:
+        ApiEvents1:
+          Type: Api
+          Properties:
+            Path: /rdsconnect/{proxy+}
+            Method: GET
+            RestApiId: !Ref commonAPIGateway
+        ApiEvents2:
+          Type: Api
+          Properties:
+            Path: /rdsconnect/{proxy+}
+            Method: HEAD
+            RestApiId: !Ref commonAPIGateway
+  
+  RdsQuiryLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: 
+      - RdsQuiry
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${RdsQuiry}
+      RetentionInDays: 1
   
   SendEmailFunction:
     Type: 'AWS::Serverless::Function'

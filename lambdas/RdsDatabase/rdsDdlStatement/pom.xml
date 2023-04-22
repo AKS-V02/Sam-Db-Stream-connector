@@ -27,6 +27,18 @@
       <artifactId>aws-lambda-java-events</artifactId>
       <version>3.11.0</version>
     </dependency>
+    <dependency>
+      <groupId>software.amazon.rdsdata</groupId>
+      <artifactId>rds-data-api-client-library-java</artifactId>
+      <version>1.0.8</version>
+    </dependency>  
+   <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-rdsdata -->
+    <!-- <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-rdsdata</artifactId>
+        <version>1.12.450</version>
+    </dependency> -->
+
     <!-- <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

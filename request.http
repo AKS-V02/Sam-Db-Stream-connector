@@ -2,7 +2,7 @@
 
 # @token = eyJraWQiOiJ3SUVoVTdLcjVtcDR3WEUyVXBHUitaR2VXcHF0SHdvQUc3VjM1XC8zVVB0ST0iLCJhbGciOiJSUzI1NiJ9.eyJvcmlnaW5fanRpIjoiYjdkOWE5ODMtZmI5MS00NTdhLWJiN2EtZTQyZDgxZDlkZTc5Iiwic3ViIjoiNzVkZGZiNjQtNjNhZS00MWI1LWE5NzMtZjZlOTU1MGY1M2RhIiwiYXVkIjoiNG1rcHJsNzN2ZGpiNDhrZmc4cXRtMjlybzUiLCJldmVudF9pZCI6IjVmMWJlMzJmLWUwOWItNGZlMS1iNDBjLTFhZWQwNDBiMmViNSIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNjc2MzIwMTkwLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuYXAtc291dGgtMS5hbWF6b25hd3MuY29tXC9hcC1zb3V0aC0xXzNEMkZDdGE5NSIsImNvZ25pdG86dXNlcm5hbWUiOiJha3NfdGVzdCIsImV4cCI6MTY3NjMyMzc5MCwiaWF0IjoxNjc2MzIwMTkwLCJqdGkiOiI1ZTFjNzhjNi1iYjBiLTRhNzgtOGViOS1jOWE0ZDUxNTMxYjcifQ.jXhbf7SmCReiedBXmdo-CM6uGtxTlHHcAUQ6yd5PoTa0Fx7q6TXcYROITX_mNEHmbNI0NNXcm3RV9vyledjudldDSV05PVbXMo8Gic8uu3hkRPA1UzXrP3p8P6KCNCktr71N8jEsut0X-YsWo9QSjXLwYa7eA445-L6-yTxznq61ECU3ASBOXUEdhOf-2IjzVb3b5Hmi73Rzrwekee6g-zAj2vEJ3hdcYKpzf1qHJqRPVASbWvQ8Usn-dIfV9aBufijQraT9DlCrDIlJT7zSrInXaefEmboWIm3oxP6aKfxSB7p0yxE9N1uYy85aWJixtORpNGcdZtnjQVqBh7TOwQ
 
-
+#dynamodb Stream POC
 POST {{endpoint}}/input
 Content-Type: application/json
 
@@ -65,12 +65,14 @@ GET {{endpoint}}/output?full_name=good boy
 Content-Type: application/json
 ###
 
+
+#Amazone SES POC
 POST {{endpoint}}/sendemail
 Content-Type: application/json
 
 { 
-  "fromMail" : "bridifemittau-1754@yopmail.com",
-  "toMail": "meiwapraweko-1551@yopmail.com",
+  "fromMail" : "meiwapraweko-1551@yopmail.com",
+  "toMail": "bridifemittau-1754@yopmail.com",
   "templateMetaData": "{\n\"sender\":{\n\"name\":\"Ajoy\"\n},\n\"recever\":{\n\"name\":\"Ajoy From other place\"\n},\n\"deployedresourses\":[\n{\n\"resourse\":\"AWS::SES::ConfigurationSet\"\n},\n{\n\"resourse\":\"AWS::SES::EmailIdentity\"\n},\n{\n\"resourse\":\"AWS::SES::Template\"\n}\n]\n}"
 }
 
@@ -79,6 +81,73 @@ POST {{endpoint}}/sendemail?varifyEmail=Y
 Content-Type: application/json
 
 {
-  "emailId": "meiwapraweko-1551@yopmail.com"
+  "emailId": "tadewecrenna-2568@yopmail.com"
 }
 ###
+
+
+
+
+# Aurora DB Poc
+
+POST {{endpoint}}/rdsconnect/create-table
+Content-Type: application/json
+
+{
+  "tableName": "Employee",
+  "columnsList":[
+    {
+      "colName":"EmployeeID",
+      "valType":"INT AUTO_INCREMENT PRIMARY KEY"
+    },
+    {
+      "colName":"EmployeeName",
+      "valType":"VARCHAR(50)"
+    },
+    {
+      "colName":"Country",
+      "valType":"VARCHAR(50)"
+    },
+    {
+      "colName":"Age",
+      "valType":"int(2)"
+    }
+  ]
+}
+###
+
+PUT {{endpoint}}/rdsconnect/add-records
+Content-Type: application/json
+
+{
+  "tableName": "music",
+  "columnsNameList":["artist", "album"],
+  "columnsvalueList":[
+    {
+      "artist":"Arijit Singh",
+      "album":"Hawaye"
+    },
+    {
+      "artist":"Eminim",
+      "album":"Venom"
+    },
+    {
+      "artist":"Siddhu Musewala",
+      "album":"Indian"
+    },
+    {
+      "artist":"Piyush Misra",
+      "album":"Husna"
+    }
+  ]
+}
+###
+
+HEAD {{endpoint}}/rdsconnect/records
+Content-Type: application/json
+
+# {
+#   "tableName":"music",
+#   "offset":"0",
+#   "limit":"5"
+# }
