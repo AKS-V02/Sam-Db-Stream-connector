@@ -2,43 +2,42 @@ package com.rds.dao;
 
 import java.util.List;
 
-import com.amazon.rdsdata.client.ExecutionResult;
-import com.amazon.rdsdata.client.RdsData;
-import com.google.gson.JsonObject;
+import com.amazonaws.services.rdsdata.AWSRDSData;
+import com.amazonaws.services.rdsdata.AWSRDSDataClient;
+import com.amazonaws.services.rdsdata.model.BatchExecuteStatementRequest;
+import com.amazonaws.services.rdsdata.model.BatchExecuteStatementResult;
+import com.amazonaws.services.rdsdata.model.ExecuteStatementRequest;
+import com.amazonaws.services.rdsdata.model.ExecuteStatementResult;
+import com.amazonaws.services.rdsdata.model.SqlParameter;
 
 public class DbConnection {
-    private RdsData client;
+    private AWSRDSData client;
+    private ExecuteStatementRequest request;
+    private BatchExecuteStatementRequest batchRequest;
+
     private static final String databaseName= System.getenv("DBName");
     private static final String dbclusterArn= System.getenv("DBClusterArn");
     private static final String secreatArn= System.getenv("SecretArn");
-
-    public static String getDatabasename() {
-        return databaseName;
-    }
-
-    public static String getDbclusterarn() {
-        return dbclusterArn;
-    }
-
-    public static String getSecreatarn() {
-        return secreatArn;
-    }
-
+    
     public DbConnection() {
-        this.client = RdsData.builder()
-                    .database(databaseName)
-                    .resourceArn(dbclusterArn)
-                    .secretArn(secreatArn).build();;
+        this.client = AWSRDSDataClient.builder().build();
+        this.request = new ExecuteStatementRequest()
+                            .withResourceArn(dbclusterArn)
+                            .withSecretArn(secreatArn)
+                            .withDatabase(databaseName)
+                            .withIncludeResultMetadata(true);
+        this.batchRequest = new BatchExecuteStatementRequest()
+                            .withResourceArn(dbclusterArn)
+                            .withSecretArn(secreatArn)
+                            .withDatabase(databaseName);
     }
 
-    public ExecutionResult executeSqlStatement(String ddlStatement){
-        return this.client.forSql(ddlStatement)
-                        .execute();
+    public ExecuteStatementResult executeSqlStatement(String ddlStatement){
+        return this.client.executeStatement(request.withSql(ddlStatement));
     }
 
-    public ExecutionResult executeSqlStatementWithParameterSet(String ddlStatement, List<JsonObject> parameterSet){
-        return this.client.forSql(ddlStatement)
-                        .withParamSets(parameterSet)
-                        .execute();
+    public BatchExecuteStatementResult executeSqlStatementWithParameterSet(String ddlStatement, List<List<SqlParameter>> parameterSet){
+        return this.client.batchExecuteStatement(batchRequest.withSql(ddlStatement)
+                                                .withParameterSets(parameterSet));
     }
 }

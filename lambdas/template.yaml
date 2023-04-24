@@ -288,11 +288,11 @@ Resources:
           DBName: !Ref DatabaseName
           SecretArn: !Ref SecretArn
       Events:
-        ApiEvents:
+        ApiEvent:
           Type: Api
           Properties:
             Path: /rdsconnect/{proxy+}
-            Method: POST
+            Method: PATCH
             RestApiId: !Ref commonAPIGateway
   
   RdsDdlStatementLogGroup:
@@ -375,17 +375,11 @@ Resources:
           DBName: !Ref DatabaseName
           SecretArn: !Ref SecretArn
       Events:
-        ApiEvents1:
+        ApiEvent:
           Type: Api
           Properties:
             Path: /rdsconnect/{proxy+}
-            Method: GET
-            RestApiId: !Ref commonAPIGateway
-        ApiEvents2:
-          Type: Api
-          Properties:
-            Path: /rdsconnect/{proxy+}
-            Method: HEAD
+            Method: POST
             RestApiId: !Ref commonAPIGateway
   
   RdsQuiryLogGroup:

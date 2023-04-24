@@ -90,7 +90,7 @@ Content-Type: application/json
 
 # Aurora DB Poc
 
-POST {{endpoint}}/rdsconnect/create-table
+PATCH {{endpoint}}/rdsconnect/create-table
 Content-Type: application/json
 
 {
@@ -124,10 +124,6 @@ Content-Type: application/json
   "columnsNameList":["artist", "album"],
   "columnsvalueList":[
     {
-      "artist":"Arijit Singh",
-      "album":"Hawaye"
-    },
-    {
       "artist":"Eminim",
       "album":"Venom"
     },
@@ -143,11 +139,18 @@ Content-Type: application/json
 }
 ###
 
-HEAD {{endpoint}}/rdsconnect/records
+POST {{endpoint}}/rdsconnect/total-count
 Content-Type: application/json
 
-# {
-#   "tableName":"music",
-#   "offset":"0",
-#   "limit":"5"
-# }
+{
+  "tableName":"music"
+}
+###
+POST {{endpoint}}/rdsconnect/records
+Content-Type: application/json
+
+{
+  "tableName":"music",
+  "offset": 0,
+  "limit": 5
+}

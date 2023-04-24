@@ -1,11 +1,11 @@
 package com.rds.handler;
 
-import com.amazon.rdsdata.client.ExecutionResult;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.amazonaws.services.rdsdata.model.ExecuteStatementResult;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -23,7 +23,7 @@ public class DdlStatement implements RequestHandler<APIGatewayProxyRequestEvent,
             if(input.getPath().contains("/create-table")){
                 logger.log(input.getBody());
                 executeStatement.setLogger(logger);
-                ExecutionResult result = executeStatement.createTable(inputObj.get("tableName").getAsString(), 
+                ExecuteStatementResult result = executeStatement.createTable(inputObj.get("tableName").getAsString(), 
                                                                     inputObj.get("columnsList").getAsJsonArray());
                 return response.withStatusCode(200).withBody(gson.toJson(result)).withHeaders(ExecuteStatement.getHeaders()); 
             }

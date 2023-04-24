@@ -2,8 +2,9 @@ package com.rds.utils;
 
 import java.util.Map;
 
-import com.amazon.rdsdata.client.ExecutionResult;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.amazonaws.services.rdsdata.model.ExecuteStatementRequest;
+import com.amazonaws.services.rdsdata.model.ExecuteStatementResult;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.rds.dao.DbConnection;
@@ -13,10 +14,22 @@ public class ExecuteStatement {
     private static final Map<String, String> headers = Map.of("Content-Type", "application/json", 
                                                              "Access-Control-Allow-Origin", "*", 
                                                              "Access-Control-Allow-Methods", "*");
+    private static final String databaseName= System.getenv("DBName");
+    private static final String dbclusterArn= System.getenv("DBClusterArn");
+    private static final String secreatArn= System.getenv("SecretArn");
+
+
     private DbConnection dbClient;
+    private ExecuteStatementRequest request;
     public LambdaLogger logger;
+
     public ExecuteStatement() {
         this.dbClient = new DbConnection();
+        this.request = new ExecuteStatementRequest()
+                            .withResourceArn(dbclusterArn)
+                            .withSecretArn(secreatArn)
+                            .withDatabase(databaseName)
+                            .withIncludeResultMetadata(true);
     } 
 
     public static Map<String, String> getHeaders() {
@@ -31,40 +44,40 @@ public class ExecuteStatement {
         this.logger = logger;
     }
 
-    public ExecutionResult createTable(String tableName, JsonArray columnAsJsonArray){
-       return this.dbClient.executeSqlStatement(getSqlCreateTableStatement(tableName, columnAsJsonArray));
+    public ExecuteStatementResult createTable(String tableName, JsonArray columnAsJsonArray){
+       return this.dbClient.executeSqlStatement(request.withSql(getSqlCreateTableStatement(tableName, columnAsJsonArray)));
     }
 
-    public ExecutionResult describeTable(String tableName){
-        return this.dbClient.executeSqlStatement("DESCRIBE "+tableName+";");
+    public ExecuteStatementResult describeTable(String tableName){
+        return this.dbClient.executeSqlStatement(request.withSql("DESCRIBE "+tableName+";"));
     }
 
-    public ExecutionResult getAllTableName(){
-        return this.dbClient.executeSqlStatement("SHOW TABLES;");
+    public ExecuteStatementResult getAllTableName(){
+        return this.dbClient.executeSqlStatement(request.withSql("SHOW TABLES;"));
     }
 
-    public ExecutionResult deleteTable(String tableName){
-        return this.dbClient.executeSqlStatement("DROP TABLE "+tableName+";");
+    public ExecuteStatementResult deleteTable(String tableName){
+        return this.dbClient.executeSqlStatement(request.withSql("DROP TABLE "+tableName+";"));
     }
 
-    public ExecutionResult renameTable(String tableName, String newTableName){
-        return this.dbClient.executeSqlStatement("ALTER TABLE "+tableName+" RENAME TO "+newTableName+";");
+    public ExecuteStatementResult renameTable(String tableName, String newTableName){
+        return this.dbClient.executeSqlStatement(request.withSql("ALTER TABLE "+tableName+" RENAME TO "+newTableName+";"));
     }
 
-    public ExecutionResult removeAllRecordsInTable(String tableName){
-        return this.dbClient.executeSqlStatement("TRUNCATE TABLE "+tableName+";");
+    public ExecuteStatementResult removeAllRecordsInTable(String tableName){
+        return this.dbClient.executeSqlStatement(request.withSql("TRUNCATE TABLE "+tableName+";"));
     }
 
-    public ExecutionResult addColumnsToTable(String tableName, JsonArray columnAsJsonArray){
-        return this.dbClient.executeSqlStatement(getSqlAddColumnsStatement(tableName, columnAsJsonArray));
+    public ExecuteStatementResult addColumnsToTable(String tableName, JsonArray columnAsJsonArray){
+        return this.dbClient.executeSqlStatement(request.withSql(getSqlAddColumnsStatement(tableName, columnAsJsonArray)));
     }
 
-    public ExecutionResult deleteColumnsFromTable(String tableName, JsonArray columnAsJsonArray){
-        return this.dbClient.executeSqlStatement(getSqlDeleteColumnsStatement(tableName, columnAsJsonArray));
+    public ExecuteStatementResult deleteColumnsFromTable(String tableName, JsonArray columnAsJsonArray){
+        return this.dbClient.executeSqlStatement(request.withSql(getSqlDeleteColumnsStatement(tableName, columnAsJsonArray)));
     }
 
-    public ExecutionResult renameColNameOfTable(String tableName, String oldColName, String newColName){
-        return this.dbClient.executeSqlStatement("ALTER TABLE "+tableName+" RENAME COLUMN "+oldColName+" TO "+newColName+";");
+    public ExecuteStatementResult renameColNameOfTable(String tableName, String oldColName, String newColName){
+        return this.dbClient.executeSqlStatement(request.withSql("ALTER TABLE "+tableName+" RENAME COLUMN "+oldColName+" TO "+newColName+";"));
     }
 
     private String getSqlCreateTableStatement(String tableName, JsonArray columnAsJsonArray){

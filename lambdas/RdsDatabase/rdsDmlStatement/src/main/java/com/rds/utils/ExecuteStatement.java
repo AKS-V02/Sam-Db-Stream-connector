@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.amazon.rdsdata.client.ExecutionResult;
+import com.amazonaws.services.rdsdata.model.BatchExecuteStatementResult;
+import com.amazonaws.services.rdsdata.model.Field;
+import com.amazonaws.services.rdsdata.model.SqlParameter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.rds.dao.DbConnection;
 
 public class ExecuteStatement {
@@ -15,22 +16,22 @@ public class ExecuteStatement {
                                                         "Access-Control-Allow-Origin", "*", 
                                                         "Access-Control-Allow-Methods", "*");
     
+
     private DbConnection dbClient;
     
     public ExecuteStatement() {
         this.dbClient = new DbConnection();
+
     } 
 
     public static Map<String, String> getHeaders() {
         return headers;
     }
 
-    public ExecutionResult addRecordsIntoTable(String tableName, JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray){
-        List<JsonObject> parameterSet = new ArrayList<>();
-        for(JsonElement valueObj:columnValueAsJsonArray){
-            parameterSet.add(valueObj.getAsJsonObject());
-        }
-       return this.dbClient.executeSqlStatementWithParameterSet(getAddRecordSqlStatement(tableName, columnNameAsJsonArray), parameterSet);
+    public BatchExecuteStatementResult addRecordsIntoTable(String tableName, JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray){
+        
+       return this.dbClient.executeSqlStatementWithParameterSet(getAddRecordSqlStatement(tableName, columnNameAsJsonArray), 
+                                                        getSqlParameterSet(columnNameAsJsonArray, columnValueAsJsonArray));
     }
 
     private String getAddRecordSqlStatement(String tableName, JsonArray columnNameAsJsonArray) {
@@ -43,5 +44,37 @@ public class ExecuteStatement {
         } 
         return statement+comaseperatedColName.replaceAll(", $",")")+" VALUES (" 
                         +comaseperatedbindVarName.replaceAll(", $",");");
+    }
+
+    private List<List<SqlParameter>> getSqlParameterSet( JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray){
+        List<List<SqlParameter>> parameterSet = new ArrayList<>();
+        for(JsonElement valueObj:columnValueAsJsonArray){
+            List<SqlParameter> record = new ArrayList<>();
+            for(JsonElement colname :columnNameAsJsonArray){
+                if(valueObj.getAsJsonObject().get(colname.getAsString()) == null){
+                    record.add(new SqlParameter()
+                            .withName(colname.getAsString())
+                            .withValue(new Field().withIsNull(true)));
+                } else if(valueObj.getAsJsonObject().get(colname.getAsString()).getAsJsonPrimitive().isNumber()){
+                    record.add(new SqlParameter()
+                            .withName(colname.getAsString())
+                            .withValue(new Field()
+                                    .withLongValue(valueObj
+                                    .getAsJsonObject()
+                                    .get(colname.getAsString())
+                                    .getAsLong())));
+                } else {
+                    record.add(new SqlParameter()
+                            .withName(colname.getAsString())
+                            .withValue(new Field()
+                                    .withStringValue(valueObj
+                                    .getAsJsonObject()
+                                    .get(colname.getAsString())
+                                    .getAsString())));
+                }
+            }
+            parameterSet.add(record);
+        }
+        return parameterSet;
     }
 }
