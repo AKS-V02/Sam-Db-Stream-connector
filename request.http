@@ -120,20 +120,21 @@ PUT {{endpoint}}/rdsconnect/add-records
 Content-Type: application/json
 
 {
-  "tableName": "music",
-  "columnsNameList":["artist", "album"],
+  "tableName": "customer",
+  "columnsNameList":["CustomerName", "Country", "Age"],
   "columnsvalueList":[
     {
-      "artist":"Eminim",
-      "album":"Venom"
+      "CustomerName":"Rama",
+      "Country":"India"
     },
     {
-      "artist":"Siddhu Musewala",
-      "album":"Indian"
+      "CustomerName":"Ravan",
+      "Country":"Shrilanka",
+      "Age": 38
     },
     {
-      "artist":"Piyush Misra",
-      "album":"Husna"
+      "CustomerName":"Hanuman",
+      "Age": 35
     }
   ]
 }
@@ -150,7 +151,7 @@ POST {{endpoint}}/rdsconnect/records
 Content-Type: application/json
 
 {
-  "tableName":"music",
-  "offset": 0,
+  "tableName":"customer",
+  "offset": 5,
   "limit": 5
 }

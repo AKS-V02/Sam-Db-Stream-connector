@@ -59,3 +59,7 @@ Outputs:
     Value: 
       !GetAtt AuroraDB.Outputs.SecretArn
     Description: AuroraDb Secreate ARN.
+  DatabaseName:
+    Value: 
+      !GetAtt AuroraDB.Outputs.DBName
+    Description: AuroraDb database name.

@@ -1,12 +1,8 @@
 package com.rds.utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.services.rdsdata.model.BatchExecuteStatementResult;
-import com.amazonaws.services.rdsdata.model.Field;
-import com.amazonaws.services.rdsdata.model.SqlParameter;
+import com.amazonaws.services.rdsdata.model.ExecuteStatementResult;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.rds.dao.DbConnection;
@@ -28,53 +24,59 @@ public class ExecuteStatement {
         return headers;
     }
 
-    public BatchExecuteStatementResult addRecordsIntoTable(String tableName, JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray){
+    public ExecuteStatementResult addRecordsIntoTable(String tableName, JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray){
         
-       return this.dbClient.executeSqlStatementWithParameterSet(getAddRecordSqlStatement(tableName, columnNameAsJsonArray), 
-                                                        getSqlParameterSet(columnNameAsJsonArray, columnValueAsJsonArray));
+       return this.dbClient.executeSqlStatement(getAddRecordSqlStatement(tableName, columnNameAsJsonArray, columnValueAsJsonArray));
     }
 
-    private String getAddRecordSqlStatement(String tableName, JsonArray columnNameAsJsonArray) {
+    private String getAddRecordSqlStatement(String tableName, JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray) {
         String statement = "INSERT INTO "+tableName+" (";
         String comaseperatedColName = "";
-        String comaseperatedbindVarName = "";
+        // String comaseperatedbindVarName = "";
         for(JsonElement columnObj:columnNameAsJsonArray){
             comaseperatedColName = comaseperatedColName + columnObj.getAsString()+", ";
-            comaseperatedbindVarName = comaseperatedbindVarName +":"+columnObj.getAsString()+", ";
+            // comaseperatedbindVarName = comaseperatedbindVarName +":"+columnObj.getAsString()+", ";
         } 
-        return statement+comaseperatedColName.replaceAll(", $",")")+" VALUES (" 
-                        +comaseperatedbindVarName.replaceAll(", $",");");
+        // return statement+comaseperatedColName.replaceAll(", $",")")+" VALUES (" 
+        //                 +comaseperatedbindVarName.replaceAll(", $",");");
+        return statement+comaseperatedColName.replaceAll(", $",")")+" VALUES "+getSqlParameterSet(columnNameAsJsonArray, columnValueAsJsonArray);
     }
 
-    private List<List<SqlParameter>> getSqlParameterSet( JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray){
-        List<List<SqlParameter>> parameterSet = new ArrayList<>();
+    private String getSqlParameterSet( JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray){
+        // List<List<SqlParameter>> parameterSet = new ArrayList<>();
+        String parameterSet = "";
         for(JsonElement valueObj:columnValueAsJsonArray){
-            List<SqlParameter> record = new ArrayList<>();
+            // List<SqlParameter> record = new ArrayList<>();
+            String record = "(";
             for(JsonElement colname :columnNameAsJsonArray){
                 if(valueObj.getAsJsonObject().get(colname.getAsString()) == null){
-                    record.add(new SqlParameter()
-                            .withName(colname.getAsString())
-                            .withValue(new Field().withIsNull(true)));
+                    record = record +"NULL" + ", ";
+                    // record.add(new SqlParameter()
+                    //         .withName(colname.getAsString())
+                    //         .withValue(new Field().withIsNull(true)));
                 } else if(valueObj.getAsJsonObject().get(colname.getAsString()).getAsJsonPrimitive().isNumber()){
-                    record.add(new SqlParameter()
-                            .withName(colname.getAsString())
-                            .withValue(new Field()
-                                    .withLongValue(valueObj
-                                    .getAsJsonObject()
-                                    .get(colname.getAsString())
-                                    .getAsLong())));
+                    record = record +valueObj.getAsJsonObject().get(colname.getAsString()).getAsString()+ ", ";
+                    // record.add(new SqlParameter()
+                    //         .withName(colname.getAsString())
+                    //         .withValue(new Field()
+                    //                 .withLongValue(valueObj
+                    //                 .getAsJsonObject()
+                    //                 .get(colname.getAsString())
+                    //                 .getAsLong())));
                 } else {
-                    record.add(new SqlParameter()
-                            .withName(colname.getAsString())
-                            .withValue(new Field()
-                                    .withStringValue(valueObj
-                                    .getAsJsonObject()
-                                    .get(colname.getAsString())
-                                    .getAsString())));
+                    record = record +"'"+valueObj.getAsJsonObject().get(colname.getAsString()).getAsString()+"'"+ ", ";
+                    // record.add(new SqlParameter()
+                    //         .withName(colname.getAsString())
+                    //         .withValue(new Field()
+                    //                 .withStringValue(valueObj
+                    //                 .getAsJsonObject()
+                    //                 .get(colname.getAsString())
+                    //                 .getAsString())));
                 }
             }
-            parameterSet.add(record);
+            // parameterSet.add(record);
+            parameterSet = parameterSet + record.replaceAll(", $","), ");
         }
-        return parameterSet;
+        return parameterSet.replaceAll(", $",";");
     }
 }

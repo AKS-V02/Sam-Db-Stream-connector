@@ -4,7 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.amazonaws.services.rdsdata.model.BatchExecuteStatementResult;
+import com.amazonaws.services.rdsdata.model.ExecuteStatementResult;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -20,7 +20,7 @@ public class DmlStatement implements RequestHandler<APIGatewayProxyRequestEvent,
         try {
             JsonObject inputObj = JsonParser.parseString(input.getBody()).getAsJsonObject(); 
             if(input.getPath().contains("/add-records")){
-                BatchExecuteStatementResult result = executeStatement.addRecordsIntoTable(inputObj.get("tableName").getAsString(),
+                ExecuteStatementResult result = executeStatement.addRecordsIntoTable(inputObj.get("tableName").getAsString(),
                                                      inputObj.get("columnsNameList").getAsJsonArray(), 
                                                      inputObj.get("columnsvalueList").getAsJsonArray());
                 return response.withStatusCode(200).withBody(gson.toJson(result)).withHeaders(ExecuteStatement.getHeaders()); 
