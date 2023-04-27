@@ -29,6 +29,10 @@ public class ExecuteStatement {
        return this.dbClient.executeSqlStatement(getAddRecordSqlStatement(tableName, columnNameAsJsonArray, columnValueAsJsonArray));
     }
 
+    public ExecuteStatementResult UpdateRecordOfTable(){
+        return null;
+    } 
+
     private String getAddRecordSqlStatement(String tableName, JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray) {
         String statement = "INSERT INTO "+tableName+" (";
         String comaseperatedColName = "";

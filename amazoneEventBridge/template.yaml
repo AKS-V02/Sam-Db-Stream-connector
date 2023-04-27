@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An Amazon Event Bridge with event rule to invoke sqs and Lambda
+
+# Parameters:
+#   DBClusterName:
+#     Description: Aurora DB cluster name.
+#     Type: String
+#     Default: aurora-test-cluster
+
+Resources:
+  
+  
+
+# Outputs:
+#   DBClusterArn:
+#     Description: Aurora DB Cluster Resource ARN
+#     Value: !Sub 'arn:aws:rds:${AWS::Region}:${AWS::AccountId}:cluster:${DBClusterName}'
+  
