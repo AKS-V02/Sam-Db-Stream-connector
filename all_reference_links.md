@@ -93,6 +93,7 @@ https://github.com/aws-amplify/amplify-js/issues/9638
 https://github.com/aws-amplify/amplify-js/issues/2714
 https://stackoverflow.com/questions/64080372/how-to-delete-a-aws-cognito-user-automatically-after-certain-time
 https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-email.html?icmpid=docs_cognito_console_help_panel
+https://docs.aws.amazon.com/cognito/latest/developerguide/how-to-manage-user-accounts.html#cognito-user-pools-searching-for-users-listusers-api-examples
 
 
 Amazon SES:
