@@ -153,6 +153,10 @@ https://github.com/awsdocs/amazon-eventbridge-user-guide/tree/main/doc_source
 https://docs.aws.amazon.com/pdfs/eventbridge/latest/userguide/user-guide.pdf
 https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html
 https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents.html
+https://docs.aws.amazon.com/eventbridge/latest/APIReference/API_TestEventPattern.html
+https://repost.aws/questions/QUYar2nHzhRteHG15oi4E9lg/how-to-define-api-gateway-to-eventbridge-integration
+https://aws.amazon.com/blogs/compute/capturing-client-events-using-amazon-api-gateway-and-amazon-eventbridge/
+https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html
 
 
 SNS:
