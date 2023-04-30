@@ -152,6 +152,7 @@ https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_Events.html
 https://github.com/awsdocs/amazon-eventbridge-user-guide/tree/main/doc_source
 https://docs.aws.amazon.com/pdfs/eventbridge/latest/userguide/user-guide.pdf
 https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html
+https://docs.aws.amazon.com/lambda/latest/dg/services-cloudwatchevents.html
 
 
 SNS:
