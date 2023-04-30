@@ -1,6 +1,6 @@
 .aws-sam
 .metadata
 .vscode
-samconfig.toml
+# samconfig.toml
 *dependency-reduced-pom.xml
 *target/
