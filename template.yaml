@@ -12,6 +12,13 @@ Resources:
     Type: AWS::Serverless::Application
     Properties: 
       Location: sqs\template.yaml
+  EventBridge: 
+    Type: AWS::Serverless::Application
+    Properties: 
+      Location: amazoneEventBridge\template.yaml
+      Parameters:
+        TargetQueArn: !GetAtt SQS.Outputs.MyEventQueArn
+        DeadLeatterQueArn: !GetAtt SQS.Outputs.MyDLQArn
   AuroraDB: 
     Type: AWS::Serverless::Application
     Properties: 
@@ -49,6 +56,8 @@ Resources:
         SecretArn: !GetAtt AuroraDB.Outputs.SecretArn
         DatabaseName: !GetAtt AuroraDB.Outputs.DBName
         DBClusterArn: !GetAtt AuroraDB.Outputs.DBClusterArn
+        EventBusName: !GetAtt EventBridge.Outputs.EventBusName
+        EventBusArn: !GetAtt EventBridge.Outputs.EventBusArn
 
 Outputs:
   ApiEndPoint:

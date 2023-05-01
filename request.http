@@ -155,3 +155,17 @@ Content-Type: application/json
   "offset": 5,
   "limit": 5
 }
+
+###
+POST {{endpoint}}/events
+Content-Type: application/json
+
+{
+  "entries":[
+    {
+      "detail":"{\"test\":\"new test\"}",
+      "detailType":"myDetailType",
+      "source":"test.event"
+    }
+  ]
+}

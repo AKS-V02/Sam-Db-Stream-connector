@@ -2,18 +2,86 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: An Amazon Event Bridge with event rule to invoke sqs and Lambda
 
-# Parameters:
-#   DBClusterName:
-#     Description: Aurora DB cluster name.
-#     Type: String
-#     Default: aurora-test-cluster
+Parameters:
+  EventBusName:
+    Description: custom event bus name.
+    Type: String
+    Default: custom-event-bus
+  # TargetQueName:
+  #   Description: Target Que Name for Event Rule.
+  #   Type: String
+  TargetQueArn:
+    Description: Target Que Arn for Event Rule.
+    Type: String
+  DeadLeatterQueArn:
+    Description: Dead Letter Que Arn for Target.
+    Type: String
+
 
 Resources:
-  
+  CustomEventBus:
+    Type: AWS::Events::EventBus
+    Properties: 
+      Name: !Sub ${AWS::StackName}-${EventBusName}
+      
+  EventBridgeQueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: !Join ["", ["/", !Ref "AWS::StackName", "/"]]
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: AllowEventBridgeToAssumeRole 
+            Effect: Allow
+            Action:
+              - 'sts:AssumeRole'
+            Principal:
+              Service:
+                - events.amazonaws.com
+            # Condition:
+            #   ArnEquals:
+            #     "aws:PrincipalArn": !GetAtt CustomEventBus.Arn
+      Policies:
+        - PolicyName: CustomSqsSendMassagePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "sqs:SendMessage"
+                Resource:
+                  - !Ref TargetQueArn
+                  - !Ref DeadLeatterQueArn
+        # - SQSSendMessagePolicy:
+        #     QueueName: !Ref TargetQueName
   
 
-# Outputs:
-#   DBClusterArn:
-#     Description: Aurora DB Cluster Resource ARN
-#     Value: !Sub 'arn:aws:rds:${AWS::Region}:${AWS::AccountId}:cluster:${DBClusterName}'
-  
+  EventQueueRule: 
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: "SQSEventRule"
+      EventBusName: !Ref CustomEventBus
+      Name: !Sub ${AWS::StackName}-${EventBusName}-QueEventRule
+      RoleArn: !GetAtt EventBridgeQueRole.Arn
+      EventPattern: 
+        # account: 
+        #   - !Sub '${AWS::AccountId}'
+        source:
+          - "test.event"
+        detail-type:
+          - "myDetailType"
+      Targets: 
+        - Arn: !Ref TargetQueArn
+          Id: "Queue"
+          DeadLetterConfig: 
+            Arn: !Ref DeadLeatterQueArn
+          RetryPolicy: 
+            MaximumRetryAttempts : 1
+
+Outputs:
+  EventBusName:
+    Description: Event Bus Arn
+    Value: !Ref CustomEventBus
+  EventBusArn:
+    Description: Event Bus Arn
+    Value: !GetAtt CustomEventBus.Arn

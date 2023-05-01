@@ -19,6 +19,11 @@ Resources:
     Properties: 
       QueueName: !Join [ "-" , ["MyDLQ" , !Select [ 7, !Split [ "-", !Ref 'AWS::StackId' ] ] ] ]
   
+  MyEventQue:
+    Type: AWS::SQS::Queue
+    Properties: 
+      QueueName: !Join [ "-" , ["MyEventQue" , !Select [ 7, !Split [ "-", !Ref 'AWS::StackId' ] ] ] ]
+  
 Outputs:
   MyQueueUrl:
     Description: My SQS que Url
@@ -35,3 +40,6 @@ Outputs:
   MyDLQName:
     Description: My SQS que name
     Value: !GetAtt MyDLQ.QueueName
+  MyEventQueArn:
+    Description: My Target Event Que Arn
+    Value: !GetAtt MyEventQue.Arn
