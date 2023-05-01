@@ -189,7 +189,6 @@ Resources:
                   #foreach($elem in $inputRoot.entries)
                   {
                     "Resources": ["$context.resourcePath"],
-                    "Time": "$context.requestTime"
                     "Detail": "$util.escapeJavaScript($elem.detail).replaceAll("\\'","'")",
                     "DetailType": "$elem.detailType",
                     "EventBusName": "${EventBusName}",
