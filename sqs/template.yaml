@@ -43,3 +43,6 @@ Outputs:
   MyEventQueArn:
     Description: My Target Event Que Arn
     Value: !GetAtt MyEventQue.Arn
+  MyEventQueName:
+    Description: My SQS que Name
+    Value: !GetAtt MyEventQue.QueueName

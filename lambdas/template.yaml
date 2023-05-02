@@ -160,7 +160,6 @@ Resources:
   apiGatewayMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      ApiKeyRequired: false
       ResourceId: !Ref EventResource
       RestApiId: !Ref commonAPIGateway
       AuthorizationType: NONE
@@ -204,28 +203,21 @@ Resources:
             # ResponseTemplates: 
             #   application/json: !Sub 
             #     - |- 
-            #       #set($allParams = $input.params())
+            #       #set($allParams = $input.path('$'))
             #       { 
             #         "params" : {
             #           #foreach($type in $allParams.keySet())
             #           #set($params = $allParams.get($type))
             #           "$type" : {
             #             #foreach($paramName in $params.keySet())
-            #             "$paramName" : "$util.escapeJavaScript($params.get($paramName))"
+            #             "$paramName" : "$params.get($paramName)"
             #             #if($foreach.hasNext),#end
             #             #end
             #           }
             #           #if($foreach.hasNext),#end
             #           #end
             #         },
-            #         "requestId":"$context.requestId",
-            #         "integration-error":"$context.integration.error",
-            #         "integration-status":"$context.integration.status",
-            #         "integration-latency":"$context.integration.latency",
-            #         "integration-requestId":"$context.integration.requestId",
-            #         "integration-integrationStatus":"$context.integration.integrationStatus",
-            #         "response-latency":"$context.responseLatency",
-            #         "status":"$context.status"
+            #         "requestId":"$context.requestId"
             #       }
             #     - {EventBusName: !Ref EventBusName}
 

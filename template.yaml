@@ -19,6 +19,8 @@ Resources:
       Parameters:
         TargetQueArn: !GetAtt SQS.Outputs.MyEventQueArn
         DeadLeatterQueArn: !GetAtt SQS.Outputs.MyDLQArn
+        TargetQueName: !GetAtt SQS.Outputs.MyEventQueName
+        DeadLeatterQueName: !GetAtt SQS.Outputs.MyDLQName
   AuroraDB: 
     Type: AWS::Serverless::Application
     Properties: 

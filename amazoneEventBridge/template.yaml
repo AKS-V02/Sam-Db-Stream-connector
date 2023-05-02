@@ -7,9 +7,12 @@ Parameters:
     Description: custom event bus name.
     Type: String
     Default: custom-event-bus
-  # TargetQueName:
-  #   Description: Target Que Name for Event Rule.
-  #   Type: String
+  TargetQueName:
+    Description: Target Que Name for Event Rule.
+    Type: String
+  DeadLeatterQueName:
+    Description: Target Que Name for Event Rule.
+    Type: String
   TargetQueArn:
     Description: Target Que Arn for Event Rule.
     Type: String
@@ -24,37 +27,39 @@ Resources:
     Properties: 
       Name: !Sub ${AWS::StackName}-${EventBusName}
       
-  EventBridgeQueRole:
-    Type: AWS::IAM::Role
-    Properties:
-      Path: !Join ["", ["/", !Ref "AWS::StackName", "/"]]
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Sid: AllowEventBridgeToAssumeRole 
-            Effect: Allow
-            Action:
-              - 'sts:AssumeRole'
-            Principal:
-              Service:
-                - events.amazonaws.com
-            # Condition:
-            #   ArnEquals:
-            #     "aws:PrincipalArn": !GetAtt CustomEventBus.Arn
-      Policies:
-        - PolicyName: CustomSqsSendMassagePolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "sqs:SendMessage"
-                Resource:
-                  - !Ref TargetQueArn
-                  - !Ref DeadLeatterQueArn
+  # EventBridgeQueRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     Path: !Join ["", ["/", !Ref "AWS::StackName", "/"]]
+  #     AssumeRolePolicyDocument:
+  #       Version: 2012-10-17
+  #       Statement:
+  #         - Sid: AllowEventBridgeToAssumeRole 
+  #           Effect: Allow
+  #           Action:
+  #             - 'sts:AssumeRole'
+  #           Principal:
+  #             Service:
+  #               - events.amazonaws.com
+  #           # Condition:
+  #           #   ArnEquals:
+  #           #     "aws:PrincipalArn": !GetAtt CustomEventBus.Arn
+  #     Policies:
+  #       - PolicyName: CustomSqsSendMassagePolicy
+  #         PolicyDocument:
+  #           Version: 2012-10-17
+  #           Statement:
+  #             - Effect: Allow
+  #               Action:
+  #                 - "sqs:SendMessage"
+  #               Resource:
+  #                 - !Ref TargetQueArn
+  #                 - !Ref DeadLeatterQueArn
+  #               Condition:
+  #                 ArnEquals:
+  #                   "aws:SourceArn": !GetAtt CustomEventBus.Arn
         # - SQSSendMessagePolicy:
         #     QueueName: !Ref TargetQueName
-  
 
   EventQueueRule: 
     Type: AWS::Events::Rule
@@ -62,10 +67,9 @@ Resources:
       Description: "SQSEventRule"
       EventBusName: !Ref CustomEventBus
       Name: !Sub ${AWS::StackName}-${EventBusName}-QueEventRule
-      RoleArn: !GetAtt EventBridgeQueRole.Arn
       EventPattern: 
-        # account: 
-        #   - !Sub '${AWS::AccountId}'
+        account: 
+          - !Sub '${AWS::AccountId}'
         source:
           - "test.event"
         detail-type:
@@ -73,10 +77,49 @@ Resources:
       Targets: 
         - Arn: !Ref TargetQueArn
           Id: "Queue"
+          InputPath: $.detail
+          # RoleArn: !GetAtt EventBridgeQueRole.Arn
           DeadLetterConfig: 
             Arn: !Ref DeadLeatterQueArn
-          RetryPolicy: 
+          RetryPolicy:
+            MaximumEventAgeInSeconds : 60 
             MaximumRetryAttempts : 1
+  
+  EventBridgeToQeuPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: events.amazonaws.com
+          Action: SQS:SendMessage
+          Resource: 
+            - !Ref TargetQueArn
+            - !Ref DeadLeatterQueArn
+          Condition:
+            ArnEquals:
+              "aws:SourceArn": !GetAtt EventQueueRule.Arn
+      Queues:
+        - !Ref TargetQueName
+        - !Ref DeadLeatterQueName
+
+  # EventBridgeToDLQPolicy:
+  #   Type: AWS::SQS::QueuePolicy
+  #   Properties:
+  #     PolicyDocument:
+  #       Statement:
+  #       - Effect: Allow
+  #         Principal:
+  #           Service: events.amazonaws.com
+  #         Action: SQS:SendMessage
+  #         Resource: !Ref DeadLeatterQueArn
+  #         Condition:
+  #           ArnEquals:
+  #             "aws:SourceArn": !GetAtt EventQueueRule.Arn
+  #     Queues:
+  #       - !Ref DeadLeatterQueName
+
 
 Outputs:
   EventBusName:
