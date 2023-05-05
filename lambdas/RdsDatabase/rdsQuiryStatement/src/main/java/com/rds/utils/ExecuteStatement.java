@@ -37,8 +37,9 @@ public class ExecuteStatement {
     }
 
     public Long getTotalRecordCount(String tableName){
-        ExecuteStatementResult result = this.dbClient.executeSqlStatement(request.withSql("SELECT COUNT(*) FROM "+tableName+";"));
-       return result.getRecords().get(0).get(0).getLongValue();
+        ExecuteStatementResult result = this.dbClient.executeSqlStatement(request.withSql("SELECT COUNT(*) as totalCount FROM "+tableName+";"));
+        return result.getRecords().get(0).get(0).getLongValue();
+        // return result.getFormattedRecords();
     }
 
 }

@@ -23,7 +23,7 @@ public class QuiryStatement implements RequestHandler<APIGatewayProxyRequestEven
                 return response.withStatusCode(200).withBody(result).withHeaders(ExecuteStatement.getHeaders()); 
             } else if(input.getPath().contains("/total-count")){
                 Long result = executeStatement.getTotalRecordCount(inputObj.get("tableName").getAsString());
-                return response.withStatusCode(200).withBody("total count"+result).withHeaders(ExecuteStatement.getHeaders()); 
+                return response.withStatusCode(200).withBody(result.toString()).withHeaders(ExecuteStatement.getHeaders()); 
             }
             return response.withStatusCode(404).withBody("Wrong Path").withHeaders(ExecuteStatement.getHeaders());
         } catch (Exception e) {

@@ -91,12 +91,14 @@ Globals:
     Timeout: 30
 
 Resources:
+  # Api Gateway for every Poc
   commonAPIGateway:
     Type: AWS::Serverless::Api
     Properties:
       StageName: dev
       Name: sam-app-api
   
+  # Event bridge, SQS Poc Starts
   ApiGatewayEventBridgeRole:
     Type: AWS::IAM::Role
     Properties:
@@ -221,8 +223,10 @@ Resources:
             #       }
             #     - {EventBusName: !Ref EventBusName}
 
+# Event Bridge, SQS Poc Ends
 
-
+#Poc for connecting Dynamo db stream, SQS, dynamodb using Lambda Starts
+  #dynamo db curd operation lambdas start
   InputDataCreate:
     Type: AWS::Serverless::Function
     Properties:
@@ -318,6 +322,9 @@ Resources:
       LogGroupName: !Sub /aws/lambda/${OutputDataRead}
       RetentionInDays: 1
 
+  #dynamo db curd operation lambdas end
+
+  #SQS put massage and get massage lambda starts
   SqsTrigger:
     Type: AWS::Serverless::Function
     Properties:
@@ -395,6 +402,12 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${SqsListner}
       RetentionInDays: 1
+
+  #SQS put massage and get massage lambda ends
+
+#Poc for connecting Dynamo db stream, SQS, dynamodb using Lambda ends
+
+#Connecting to aurora Rds using Data API Poc Starts
   
   RdsDdlStatement:
     Type: 'AWS::Serverless::Function'
@@ -521,7 +534,10 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${RdsQuiry}
       RetentionInDays: 1
-  
+
+#Connecting to aurora Rds using Data API Poc ends
+
+#SES sending massage and varifying Identity Poc Starts
   SendEmailFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
@@ -563,7 +579,9 @@ Resources:
       LogGroupName: !Sub /aws/lambda/${SendEmailFunction}
       RetentionInDays: 1
   
+  #SES sending massage and varifying Identity Poc ends
 
+#Event bridge, Sqs Poc APi methode deployment starts
   apiGatewayDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
@@ -571,6 +589,7 @@ Resources:
     Properties:
       RestApiId: !Ref commonAPIGateway
       StageName: 'dev'
+#Event bridge, Sqs Poc APi methode deployment ends
   
 Outputs:
   commonEndpoint:

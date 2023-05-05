@@ -94,14 +94,14 @@ PATCH {{endpoint}}/rdsconnect/create-table
 Content-Type: application/json
 
 {
-  "tableName": "Employee",
+  "tableName": "customer",
   "columnsList":[
     {
-      "colName":"EmployeeID",
+      "colName":"CustomerID",
       "valType":"INT AUTO_INCREMENT PRIMARY KEY"
     },
     {
-      "colName":"EmployeeName",
+      "colName":"CustomerName",
       "valType":"VARCHAR(50)"
     },
     {
@@ -144,7 +144,7 @@ POST {{endpoint}}/rdsconnect/total-count
 Content-Type: application/json
 
 {
-  "tableName":"music"
+  "tableName":"customer"
 }
 ###
 POST {{endpoint}}/rdsconnect/records
