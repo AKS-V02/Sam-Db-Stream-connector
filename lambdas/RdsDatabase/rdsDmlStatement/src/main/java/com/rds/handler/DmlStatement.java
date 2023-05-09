@@ -25,6 +25,12 @@ public class DmlStatement implements RequestHandler<APIGatewayProxyRequestEvent,
                                                      inputObj.get("columnsvalueList").getAsJsonArray());
                 return response.withStatusCode(200).withBody(gson.toJson(result)).withHeaders(ExecuteStatement.getHeaders()); 
             }
+            if(input.getPath().contains("/update-records")){
+                ExecuteStatementResult result = executeStatement.updateRecordOfTable(inputObj.get("tableName").getAsString(),
+                                                     inputObj.get("conditionColumnValue").getAsJsonObject(), 
+                                                     inputObj.get("updateColumnValue").getAsJsonObject());
+                return response.withStatusCode(200).withBody(gson.toJson(result)).withHeaders(ExecuteStatement.getHeaders()); 
+            }
             return response.withStatusCode(404).withBody("Wrong Path").withHeaders(ExecuteStatement.getHeaders());
         } catch (Exception e) {
             return response.withStatusCode(400).withBody(e.getMessage()).withHeaders(ExecuteStatement.getHeaders());
