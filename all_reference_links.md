@@ -145,7 +145,7 @@ https://aws.amazon.com/getting-started/hands-on/building-serverless-applications
 https://www.tutorialspoint.com/how-to-check-which-database-is-selected-in-mysql
 https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html#aurora-serverless.limitations
 https://github.com/awslabs/rds-data-api-client-library-java
-
+https://github.com/aws-samples/serverless-rds-proxy-demo/blob/main/template.yaml
 
 Event Bridge:
 https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/AWS_Events.html
