@@ -14,6 +14,7 @@
     <module>inputDataTable/input-create</module>
     <module>inputDataTable/input-read</module>
     <module>outputDataTable/output-read</module>
+    <module>RdsDatabase/rdsConnect</module>
     <module>RdsDatabase/rdsDdlStatement</module>
     <module>RdsDatabase/rdsDmlStatement</module>
     <module>RdsDatabase/rdsQuiryStatement</module>

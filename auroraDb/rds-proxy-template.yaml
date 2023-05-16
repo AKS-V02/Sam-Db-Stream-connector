@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: 2010-09-09
+AWSTemplateFormatVersion: '2010-09-09'
 Description: Amazon Aurora MySQL and RDS Proxy Setup
 
 ## Mapping holding default network/database settings
@@ -11,7 +11,7 @@ Mappings:
       subPrv3Cidr: 172.31.2.0/24
   ClusterSettings:
     global:
-      dbSchema: mylab
+      dbSchema: mytestdb
       dbVersion: 5.7.mysql_aurora.2.11.2
       dbEngine: aurora-mysql
       dbFamily: aurora-mysql5.7
@@ -129,25 +129,25 @@ Resources:
           Value: !Sub "${AWS::StackName}-cluster-secret"
 
   # IAM Role to be used for enabling enhanced monitoring for RDS Aurora cluster
-  roleEnhancedMonitoring:
-    Type: "AWS::IAM::Role"
-    Properties:
-      RoleName: !Sub "${AWS::StackName}-monitor-${AWS::Region}"
-      Description: "Allows your Aurora DB cluster to deliver Enhanced Monitoring metrics."
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - "sts:AssumeRole"
-            Principal:
-              Service:
-                - "monitoring.rds.amazonaws.com"
-      ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
-      Tags:
-        - Key: Name
-          Value: !Sub "${AWS::StackName}-monitor-${AWS::Region}"
+  # roleEnhancedMonitoring:
+  #   Type: "AWS::IAM::Role"
+  #   Properties:
+  #     RoleName: !Sub "${AWS::StackName}-monitor-${AWS::Region}"
+  #     Description: "Allows your Aurora DB cluster to deliver Enhanced Monitoring metrics."
+  #     AssumeRolePolicyDocument:
+  #       Version: 2012-10-17
+  #       Statement:
+  #         - Effect: Allow
+  #           Action:
+  #             - "sts:AssumeRole"
+  #           Principal:
+  #             Service:
+  #               - "monitoring.rds.amazonaws.com"
+  #     ManagedPolicyArns:
+  #       - "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+  #     Tags:
+  #       - Key: Name
+  #         Value: !Sub "${AWS::StackName}-monitor-${AWS::Region}"
 
   # Custom parameter group for RDS Aurora
   pgNodeParams:
@@ -179,58 +179,66 @@ Resources:
     Properties:
       Engine: !FindInMap [ ClusterSettings, global, dbEngine ]
       EngineVersion: !FindInMap [ ClusterSettings, global, dbVersion ]
+      EngineMode: serverless
       DBSubnetGroupName: !Ref dbSubnets
       DBClusterIdentifier: !Sub "${AWS::StackName}-mysql-cluster"
-      BackupRetentionPeriod: 1
+      # BackupRetentionPeriod: 1
       MasterUsername: !Join [ "", [ "{{resolve:secretsmanager:", !Ref secretClusterMasterUser, ":SecretString:username}}" ] ]
       MasterUserPassword: !Join [ "", [ "{{resolve:secretsmanager:", !Ref secretClusterMasterUser, ":SecretString:password}}" ] ]
       DatabaseName: !FindInMap [ ClusterSettings, global, dbSchema ]
-      StorageEncrypted: true
+      # StorageEncrypted: true
       VpcSecurityGroupIds: [ !Ref dbClusterSecGroup ]
-      EnableCloudwatchLogsExports: [ error, slowquery ]
-      BacktrackWindow: 86400
-      EnableIAMDatabaseAuthentication: true
+      # EnableCloudwatchLogsExports: [ error, slowquery ]
+      # BacktrackWindow: 86400
+      # EnableIAMDatabaseAuthentication: true
+      ScalingConfiguration:
+        AutoPause: true
+        MinCapacity: 1
+        MaxCapacity: 2
+        SecondsUntilAutoPause: 3600
+      DeletionProtection: false
       Tags:
         - Key: Name
           Value: !Sub "${AWS::StackName}-mysql-cluster"
 
+  #below code is not required as engine mode is Serverless for cluster
   # Primary DB instance for RDS Cluster
-  dbNode1:
-    Type: "AWS::RDS::DBInstance"
-    Properties:
-      DBClusterIdentifier: !Ref dbCluster
-      DBInstanceIdentifier: !Sub "${AWS::StackName}-mysql-node-1"
-      CopyTagsToSnapshot: true
-      DBInstanceClass: !FindInMap [ ClusterSettings, global, nodeType ]
-      DBParameterGroupName: !Ref pgNodeParams
-      Engine: !FindInMap [ ClusterSettings, global, dbEngine ]
-      MonitoringInterval: 1
-      MonitoringRoleArn: !GetAtt roleEnhancedMonitoring.Arn
-      PubliclyAccessible: false
-      EnablePerformanceInsights: true
-      PerformanceInsightsRetentionPeriod: 7
-      Tags:
-        - Key: Name
-          Value: !Sub "${AWS::StackName}-mysql-node-1"
+  # dbNode1:
+  #   Type: "AWS::RDS::DBInstance"
+  #   Properties:
+  #     DBClusterIdentifier: !Ref dbCluster
+  #     DBInstanceIdentifier: !Sub "${AWS::StackName}-mysql-node-1"
+  #     CopyTagsToSnapshot: true
+  #     DBInstanceClass: !FindInMap [ ClusterSettings, global, nodeType ]
+  #     DBParameterGroupName: !Ref pgNodeParams
+  #     Engine: !FindInMap [ ClusterSettings, global, dbEngine ]
+  #     # MonitoringInterval: 1
+  #     # MonitoringRoleArn: !GetAtt roleEnhancedMonitoring.Arn
+  #     PubliclyAccessible: false
+  #     # EnablePerformanceInsights: true
+  #     # PerformanceInsightsRetentionPeriod: 7
+  #     Tags:
+  #       - Key: Name
+  #         Value: !Sub "${AWS::StackName}-mysql-node-1"
 
   # Reader node instance for RDS Aurora Cluster
-  dbNode2:
-    Type: "AWS::RDS::DBInstance"
-    Properties:
-      DBClusterIdentifier: !Ref dbCluster
-      DBInstanceIdentifier: !Sub "${AWS::StackName}-mysql-node-2"
-      CopyTagsToSnapshot: true
-      DBInstanceClass: !FindInMap [ ClusterSettings, global, nodeType ]
-      DBParameterGroupName: !Ref pgNodeParams
-      Engine: !FindInMap [ ClusterSettings, global, dbEngine ]
-      MonitoringInterval: 1
-      MonitoringRoleArn: !GetAtt roleEnhancedMonitoring.Arn
-      PubliclyAccessible: false
-      EnablePerformanceInsights: true
-      PerformanceInsightsRetentionPeriod: 7
-      Tags:
-        - Key: Name
-          Value: !Sub "${AWS::StackName}-mysql-node-2"
+  # dbNode2:
+  #   Type: "AWS::RDS::DBInstance"
+  #   Properties:
+  #     DBClusterIdentifier: !Ref dbCluster
+  #     DBInstanceIdentifier: !Sub "${AWS::StackName}-mysql-node-2"
+  #     CopyTagsToSnapshot: true
+  #     DBInstanceClass: !FindInMap [ ClusterSettings, global, nodeType ]
+  #     DBParameterGroupName: !Ref pgNodeParams
+  #     Engine: !FindInMap [ ClusterSettings, global, dbEngine ]
+  #     # MonitoringInterval: 1
+  #     # MonitoringRoleArn: !GetAtt roleEnhancedMonitoring.Arn
+  #     PubliclyAccessible: false
+  #     # EnablePerformanceInsights: true
+  #     # PerformanceInsightsRetentionPeriod: 7
+  #     Tags:
+  #       - Key: Name
+  #         Value: !Sub "${AWS::StackName}-mysql-node-2"
 
   # IAM Role to be used by RDS Proxy for fetching secrets
   dbProxyRole:
@@ -260,7 +268,7 @@ Resources:
     Type: AWS::RDS::DBProxy
     Properties:
       Auth:
-        - { AuthScheme: SECRETS, SecretArn: !Ref secretClusterMasterUser, IAMAuth: REQUIRED }
+        - { AuthScheme: SECRETS, SecretArn: !Ref secretClusterMasterUser, IAMAuth: DISABLED }
       DBProxyName: 'rds-proxy'
       RoleArn: !GetAtt dbProxyRole.Arn
       EngineFamily: 'MYSQL'
@@ -279,8 +287,8 @@ Resources:
     Type: AWS::RDS::DBProxyTargetGroup
     DependsOn:
       - dbCluster
-      - dbNode1
-      - dbNode2
+      # - dbNode1
+      # - dbNode2
     Properties:
       DBProxyName: !Ref dbProxy
       DBClusterIdentifiers: [ !Ref dbCluster ]
@@ -324,3 +332,6 @@ Outputs:
   dbProxyResourceId:
     Description: "RDS Proxy Resource ID. This is used while configuring permissions for lambda function"
     Value: !Select [6, !Split [":", !GetAtt dbProxy.DBProxyArn]]
+  DatabaseName: 
+    Description: "RDS databse name"
+    Value: !FindInMap [ ClusterSettings, global, dbSchema ]

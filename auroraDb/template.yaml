@@ -21,12 +21,12 @@ Parameters:
     MaxLength: '16'
     AllowedPattern: '[a-zA-Z0-9_]+'
     ConstraintDescription: Must be between 2 to 16 alphanumeric characters.
-  SubnetIds:
-    Type: String
-    Default: subnet-09bbe7b4aa1e0b788,subnet-0b7c043d05d439852,subnet-0bfd7b287bb1bf00e
-  ProxyName:
-    Type: String
-    Default: testProxy
+  # SubnetIds:
+  #   Type: String
+  #   Default: subnet-09bbe7b4aa1e0b788,subnet-0b7c043d05d439852,subnet-0bfd7b287bb1bf00e
+  # ProxyName:
+  #   Type: String
+  #   Default: testProxy
 
 Resources:
   # Secrets Manager secret
@@ -60,56 +60,56 @@ Resources:
         SecondsUntilAutoPause: 3600
       DeletionProtection: false
 
-  TestDBProxy:
-    Type: AWS::RDS::DBProxy
-    Properties:
-      # DebugLogging: true
-      DBProxyName: !Ref ProxyName
-      EngineFamily: MYSQL
-      IdleClientTimeout: 120
-      RequireTLS: true
-      RoleArn:
-        !Ref dbProxyRole
-      Auth:
-        - {AuthScheme: SECRETS, SecretArn: !Ref DBSecret, IAMAuth: DISABLED}
-      VpcSubnetIds:
-        Fn::Split: [",", !Ref SubnetIds]
+  # TestDBProxy:
+  #   Type: AWS::RDS::DBProxy
+  #   Properties:
+  #     # DebugLogging: true
+  #     DBProxyName: !Ref ProxyName
+  #     EngineFamily: MYSQL
+  #     IdleClientTimeout: 120
+  #     RequireTLS: true
+  #     RoleArn:
+  #       !Ref dbProxyRole
+  #     Auth:
+  #       - {AuthScheme: SECRETS, SecretArn: !Ref DBSecret, IAMAuth: DISABLED}
+  #     VpcSubnetIds:
+  #       Fn::Split: [",", !Ref SubnetIds]
   
-  # IAM Role to be used by RDS Proxy for fetching secrets
-  dbProxyRole:
-    Type: AWS::IAM::Role
-    Properties:
-      Path: /
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Action: [ 'sts:AssumeRole' ]
-            Effect: Allow
-            Principal:
-              Service: [ rds.amazonaws.com ]
-      Policies:
-        - PolicyName: DBProxyPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Action:
-                  - secretsmanager:GetSecretValue
-                Effect: Allow
-                Resource:
-                  - !Ref DBSecret
+  # # IAM Role to be used by RDS Proxy for fetching secrets
+  # dbProxyRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     Path: /
+  #     AssumeRolePolicyDocument:
+  #       Version: '2012-10-17'
+  #       Statement:
+  #         - Action: [ 'sts:AssumeRole' ]
+  #           Effect: Allow
+  #           Principal:
+  #             Service: [ rds.amazonaws.com ]
+  #     Policies:
+  #       - PolicyName: DBProxyPolicy
+  #         PolicyDocument:
+  #           Version: '2012-10-17'
+  #           Statement:
+  #             - Action:
+  #                 - secretsmanager:GetSecretValue
+  #               Effect: Allow
+  #               Resource:
+  #                 - !Ref DBSecret
 
-  ProxyTargetGroup:
-    Type: AWS::RDS::DBProxyTargetGroup
-    Properties:
-      DBProxyName: !Ref TestDBProxy
-      DBClusterIdentifiers: 
-        - !Ref AuroraCluster
-      # DBInstanceIdentifiers: [!Ref InstanceName]
-      TargetGroupName: default
-      ConnectionPoolConfigurationInfo:
-          MaxConnectionsPercent: 100
-          MaxIdleConnectionsPercent: 50
-          ConnectionBorrowTimeout: 120
+  # ProxyTargetGroup:
+  #   Type: AWS::RDS::DBProxyTargetGroup
+  #   Properties:
+  #     DBProxyName: !Ref TestDBProxy
+  #     DBClusterIdentifiers: 
+  #       - !Ref AuroraCluster
+  #     # DBInstanceIdentifiers: [!Ref InstanceName]
+  #     TargetGroupName: default
+  #     ConnectionPoolConfigurationInfo:
+  #         MaxConnectionsPercent: 100
+  #         MaxIdleConnectionsPercent: 50
+  #         ConnectionBorrowTimeout: 120
   
 
 Outputs:

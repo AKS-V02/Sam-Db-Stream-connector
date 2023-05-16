@@ -119,7 +119,7 @@ public class ExecuteStatement {
             statement.replace(statement.length()-5,statement.length(),";");
             return this.dbClient.executeSqlStatement(statement.toString());
           }
-          public String convertValueForSqlStatement(JsonElement valueObj){
+    public String convertValueForSqlStatement(JsonElement valueObj){
             if(valueObj == null){
               return "NULL";
             } else if(valueObj.getAsJsonPrimitive().isNumber()){
