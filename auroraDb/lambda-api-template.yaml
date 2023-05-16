@@ -7,7 +7,7 @@ Description: >
 
 Parameters:
   Subnets:
-    Type: List<AWS::EC2::Subnet::Id>
+    Type: CommaDelimitedList
     Description: "Subnets Ids where function will be deployed. Provide at least two"
   RdsProxyEndpoint:
     Type: String

@@ -150,19 +150,19 @@ Resources:
   #         Value: !Sub "${AWS::StackName}-monitor-${AWS::Region}"
 
   # Custom parameter group for RDS Aurora
-  pgNodeParams:
-    Type: "AWS::RDS::DBParameterGroup"
-    Properties:
-      Description: !Sub "${AWS::StackName}-mysql-node-params"
-      Family: !FindInMap [ ClusterSettings, global, dbFamily ]
-      Parameters:
-        innodb_stats_persistent_sample_pages: "256"
-        slow_query_log: "1"
-        long_query_time: "10"
-        log_output: FILE
-      Tags:
-        - Key: Name
-          Value: !Sub "${AWS::StackName}-mysql-node-params"
+  # pgNodeParams:
+  #   Type: "AWS::RDS::DBParameterGroup"
+  #   Properties:
+  #     Description: !Sub "${AWS::StackName}-mysql-node-params"
+  #     Family: !FindInMap [ ClusterSettings, global, dbFamily ]
+  #     Parameters:
+  #       innodb_stats_persistent_sample_pages: "256"
+  #       slow_query_log: "1"
+  #       long_query_time: "10"
+  #       log_output: FILE
+  #     Tags:
+  #       - Key: Name
+  #         Value: !Sub "${AWS::StackName}-mysql-node-params"
   dbSubnets:
     Type: "AWS::RDS::DBSubnetGroup"
     Properties:
@@ -179,7 +179,7 @@ Resources:
     Properties:
       Engine: !FindInMap [ ClusterSettings, global, dbEngine ]
       EngineVersion: !FindInMap [ ClusterSettings, global, dbVersion ]
-      EngineMode: serverless
+      # EngineMode: serverless
       DBSubnetGroupName: !Ref dbSubnets
       DBClusterIdentifier: !Sub "${AWS::StackName}-mysql-cluster"
       # BackupRetentionPeriod: 1
@@ -191,15 +191,15 @@ Resources:
       # EnableCloudwatchLogsExports: [ error, slowquery ]
       # BacktrackWindow: 86400
       # EnableIAMDatabaseAuthentication: true
-      ScalingConfiguration:
-        AutoPause: true
-        MinCapacity: 1
+      ServerlessV2ScalingConfiguration:
         MaxCapacity: 2
-        SecondsUntilAutoPause: 3600
+        MinCapacity: 0.5
+      # ScalingConfiguration:
+      #   AutoPause: true
+      #   MinCapacity: 1
+      #   MaxCapacity: 2
+      #   SecondsUntilAutoPause: 3600
       DeletionProtection: false
-      Tags:
-        - Key: Name
-          Value: !Sub "${AWS::StackName}-mysql-cluster"
 
   #below code is not required as engine mode is Serverless for cluster
   # Primary DB instance for RDS Cluster
@@ -294,8 +294,8 @@ Resources:
       DBClusterIdentifiers: [ !Ref dbCluster ]
       TargetGroupName: default
       ConnectionPoolConfigurationInfo:
-        MaxConnectionsPercent: 5
-        MaxIdleConnectionsPercent: 4
+        MaxConnectionsPercent: 100
+        MaxIdleConnectionsPercent: 50
         ConnectionBorrowTimeout: 120
 
 Outputs:

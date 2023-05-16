@@ -3,7 +3,26 @@ Transform: AWS::Serverless-2016-10-31
 Description: > 
   new app test template
 
-Resources: 
+Resources:
+  AuroraDBWithProxy: 
+    Type: AWS::Serverless::Application
+    Properties: 
+      Location: auroraDb\rds-proxy-template.yaml
+  LambdaAndApi: 
+    Type: AWS::Serverless::Application
+    Properties: 
+      Location: auroraDb\lambda-api-template.yaml
+      Parameters:
+        Subnets: 
+          - !GetAtt AuroraDBWithProxy.Outputs.sub1Private
+          - !GetAtt AuroraDBWithProxy.Outputs.sub2Private
+          - !GetAtt AuroraDBWithProxy.Outputs.sub3Private
+        RdsProxyEndpoint: !GetAtt AuroraDBWithProxy.Outputs.rdsProxyEndpoint
+        Port: !GetAtt AuroraDBWithProxy.Outputs.databasePort
+        SecretArn: !GetAtt AuroraDBWithProxy.Outputs.secretArn
+        DbName: !GetAtt AuroraDBWithProxy.Outputs.DatabaseName
+        ProxyResourceId: !GetAtt AuroraDBWithProxy.Outputs.dbProxyResourceId
+        LambdaSecurityGroupId: !GetAtt AuroraDBWithProxy.Outputs.lambdaSgGroupId
   DynamoDB: 
     Type: AWS::Serverless::Application
     Properties: 
@@ -60,25 +79,6 @@ Resources:
         DBClusterArn: !GetAtt AuroraDB.Outputs.DBClusterArn
         EventBusName: !GetAtt EventBridge.Outputs.EventBusName
         EventBusArn: !GetAtt EventBridge.Outputs.EventBusArn
-  AuroraDBWithProxy: 
-    Type: AWS::Serverless::Application
-    Properties: 
-      Location: auroraDb\rds-proxy-template.yaml
-  LambdaAndApi: 
-    Type: AWS::Serverless::Application
-    Properties: 
-      Location: auroraDb\lambda-api-template.yaml
-      Parameters:
-        Subnets: 
-          - !GetAtt AuroraDBWithProxy.Outputs.sub1Private
-          - !GetAtt AuroraDBWithProxy.Outputs.sub2Private
-          - !GetAtt AuroraDBWithProxy.Outputs.sub3Private
-        RdsProxyEndpoint: !GetAtt AuroraDBWithProxy.Outputs.rdsProxyEndpoint
-        Port: !GetAtt AuroraDBWithProxy.Outputs.databasePort
-        SecretArn: !GetAtt AuroraDBWithProxy.Outputs.secretArn
-        DbName: !GetAtt AuroraDBWithProxy.Outputs.DatabaseName
-        ProxyResourceId: !GetAtt AuroraDBWithProxy.Outputs.dbProxyResourceId
-        LambdaSecurityGroupId: !GetAtt AuroraDBWithProxy.Outputs.lambdaSgGroupId
     
 
 Outputs:
