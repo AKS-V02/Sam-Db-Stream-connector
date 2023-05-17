@@ -1,13 +1,11 @@
 package com.rds.utils;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,7 +18,7 @@ public class ExecuteStatement {
                                                              "Access-Control-Allow-Origin", "*", 
                                                              "Access-Control-Allow-Methods", "*");
     
-    public static final Logger LOGGER = LoggerFactory.getLogger(ExecuteStatement.class);
+    public LambdaLogger LOGGER;
     
     private Connection conn = null;
 
@@ -28,21 +26,26 @@ public class ExecuteStatement {
     public ExecuteStatement() {
     }
 
+    public void setLogger(LambdaLogger LOGGER){
+        this.LOGGER = LOGGER;
+
+    }
+
     public static Map<String, String> getHeaders() {
         return headers;
     }
 
     public void startConnection() throws SQLException{
-        conn = DbConnection.getConnection();
+        conn = DbConnection.getConnection(LOGGER);
     }
 
     public void closeConnection(){
-        DbConnection.closeConnection(conn);
+        DbConnection.closeConnection(conn, LOGGER);
     }
 
     public int createTable(String tableName, JsonArray columnAsJsonArray) throws Exception{
-        LOGGER.info("createTable tableName"+tableName+" columnAsJsonArray "+columnAsJsonArray.toString());
-        return DbConnection.executeUpdate(conn, getSqlCreateTableStatement(tableName, columnAsJsonArray));
+        LOGGER.log("createTable tableName"+tableName+" columnAsJsonArray "+columnAsJsonArray.toString());
+        return DbConnection.executeUpdate(conn, getSqlCreateTableStatement(tableName, columnAsJsonArray), LOGGER);
     }
 
     // public ExecuteStatementResult createTable(String tableName, JsonArray columnAsJsonArray){
@@ -112,14 +115,14 @@ public class ExecuteStatement {
 
     // Dml Statement Started
     public int addRecordsIntoTable(String tableName, JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray) throws Exception{
-        LOGGER.info("createTable tableName"+tableName
+        LOGGER.log("createTable tableName"+tableName
                     +" columnNameAsJsonArray "+columnNameAsJsonArray.toString()
                     +" columnValueAsJsonArray " + columnValueAsJsonArray.toString());
-        return DbConnection.executeUpdate(conn,getAddRecordSqlStatement(tableName, columnNameAsJsonArray, columnValueAsJsonArray));
+        return DbConnection.executeUpdate(conn,getAddRecordSqlStatement(tableName, columnNameAsJsonArray, columnValueAsJsonArray), LOGGER);
      }
      
      public int updateRecordOfTable(String tableName, JsonObject conditionColumnValue, JsonObject updateColumnValue) throws Exception{
-            LOGGER.info("createTable tableName"+tableName
+            LOGGER.log("createTable tableName"+tableName
                         +" conditionColumnValue "+conditionColumnValue.toString()
                         +" updateColumnValue " + updateColumnValue.toString());
              StringBuilder statement=new StringBuilder("UPDATE "+tableName+" SET ");  
@@ -136,7 +139,7 @@ public class ExecuteStatement {
                      .append(" AND ");
                  }
              statement.replace(statement.length()-5,statement.length(),";");
-             return DbConnection.executeUpdate(conn,statement.toString());
+             return DbConnection.executeUpdate(conn,statement.toString(), LOGGER);
            }
 
      private String getAddRecordSqlStatement(String tableName, JsonArray columnNameAsJsonArray, JsonArray columnValueAsJsonArray) {
@@ -178,14 +181,14 @@ public class ExecuteStatement {
 
     // Quiry code starts 
 
-    public ResultSet getAllColumnRecord(String tableName, String offset, String Limit) throws Exception{
-        LOGGER.info("tableName "+tableName+" offset "+offset+" Limit "+Limit);
-        return DbConnection.executeQuiry(conn,"SELECT * FROM "+tableName+" LIMIT "+Limit+" OFFSET "+offset+";");
+    public List<Map<String, Object>> getAllColumnRecord(String tableName, String offset, String Limit) throws Exception{
+        LOGGER.log("tableName "+tableName+" offset "+offset+" Limit "+Limit);
+        return DbConnection.executeQuiry(conn,"SELECT * FROM "+tableName+" LIMIT "+Limit+" OFFSET "+offset+";", LOGGER);
     }
 
-    public ResultSet getTotalRecordCount(String tableName) throws Exception{
-        LOGGER.info("tableName "+tableName);
-        return DbConnection.executeQuiry(conn, "SELECT COUNT(*) as totalCount FROM "+tableName+";");
+    public List<Map<String, Object>> getTotalRecordCount(String tableName) throws Exception{
+        LOGGER.log("tableName "+tableName);
+        return DbConnection.executeQuiry(conn, "SELECT COUNT(*) as totalCount FROM "+tableName+";", LOGGER);
     }
 
 }
