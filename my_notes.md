@@ -500,3 +500,52 @@ VOL            Displays a disk volume label and serial number.
 XCOPY          Copies files and directory trees.
 WMIC           Displays WMI information inside interactive command shell.
 
+**permission Metrics Statement**
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetRole",
+                "iam:UpdateAssumeRolePolicy",
+                "iam:GetPolicyVersion",
+                "iam:ListRoleTags",
+                "iam:GetPolicy",
+                "iam:PutRolePermissionsBoundary",
+                "iam:DeletePolicy",
+                "iam:CreateRole",
+                "iam:DeleteRole",
+                "iam:AttachRolePolicy",
+                "iam:PutRolePolicy",
+                "iam:DeleteRolePermissionsBoundary",
+                "iam:CreatePolicy",
+                "iam:DetachRolePolicy",
+                "iam:ListPolicyVersions",
+                "iam:ListAttachedRolePolicies",
+                "iam:DeleteRolePolicy",
+                "iam:UpdateRole",
+                "iam:ListPolicyTags",
+                "iam:CreatePolicyVersion",
+                "iam:ListRolePolicies",
+                "iam:GetRolePolicy",
+                "iam:DeletePolicyVersion"
+            ],
+            "Resource": [
+                "arn:aws:iam::873693938287:role/*",
+                "arn:aws:iam::873693938287:policy/*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": [
+                "iam:ListPolicies",
+                "iam:ListRoles"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
