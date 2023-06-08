@@ -173,7 +173,8 @@ Content-Type: application/json
 
 #poc for aurora rds proxy server
 
-POST {{endpoint2}}/rds/create-table
+# POST {{endpoint2}}/rds/create-table
+POST https://l7kvrv5cgk.execute-api.us-west-2.amazonaws.com/dev/rds/create-table
 Content-Type: application/json
 
 {
