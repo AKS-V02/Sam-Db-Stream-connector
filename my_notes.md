@@ -549,3 +549,163 @@ WMIC           Displays WMI information inside interactive command shell.
         }
     ]
 }
+
+
+
+
+**Adding COGNITO As OpenId SSO To Another Cognito**
+
+##Parrent Project Configuration
+
+
+C:\Users\2195410\LearningProject\cognitoHostedUiwithSSO\parrent-project>amplify add auth
+Using service: Cognito, provided by: awscloudformation
+
+ The current configured provider is Amazon Cognito.
+
+ Do you want to use the default authentication and security configuration? Manual configuration
+ Select the authentication/authorization services that you want to use: User Sign-Up, Sign-In, connected with AWS IAM controls (Enables per-user Storage features for images or other content, Analytics, and more)
+
+
+ Provide a friendly name for your resource that will be used to label this category in the project: parrentproject3485b2c93485b2c9
+ Enter a name for your identity pool. parrentproject3485b2c9_identitypool_3485b2c9
+ Allow unauthenticated logins? (Provides scoped down permissions that you can control via AWS IAM) No
+ Do you want to enable 3rd party authentication providers in your identity pool? No
+ Provide a name for your user pool: parrentproject3485b2c9_userpool_3485b2c9
+ Warning: you will not be able to edit these selections.
+ How do you want users to be able to sign in? Email
+ Do you want to add User Pool Groups? No
+ Do you want to add an admin queries API? No
+ Multifactor authentication (MFA) user login options: OFF
+ Email based user registration/forgot password: Enabled (Requires per-user email entry at registration)
+ Specify an email verification subject: Your verification code
+ Specify an email verification message: Your verification code is {####}
+ Do you want to override the default password policy for this User Pool? No
+ Warning: you will not be able to edit these selections.
+ What attributes are required for signing up? Email, Phone Number (This attribute is not supported by Facebook, Login With Amazon, Sign in with Apple.)
+ Specify the app's refresh token expiration period (in days): 1
+ Do you want to specify the user attributes this app can read and write? No
+ Do you want to enable any of the following capabilities?
+ Do you want to use an OAuth flow? Yes
+ What domain name prefix do you want to use? paraent-pool
+ Enter your redirect signin URI: http://localhost:3000/
+? Do you want to add another redirect signin URI No
+ Enter your redirect signout URI: http://localhost:3000/
+? Do you want to add another redirect signout URI No
+ Select the OAuth flows enabled for this project. Authorization code grant
+ Select the OAuth scopes enabled for this project. OpenID
+ Select the social providers you want to configure for your user pool:
+? Do you want to configure Lambda Triggers for Cognito? No
+✅ Successfully added auth resource parrentproject3485b2c93485b2c9 locally
+
+✅ Some next steps:
+"amplify push" will build all your local backend resources and provision it in the cloud
+"amplify publish" will build all your local backend and frontend resources (if you have hosting category added) and provision it in the cloud
+
+
+#override file of auth
+
+ var CHILD_USERPOOL_ID = "ap-south-1_IQE2BH0ti";
+    var REGION = "ap-south-1";
+    var CHILD_USERPOOL_WEB_CLIENT_ID = "3qr2tnlbi0f95bilna846r5jlb";
+    var CHILD_USERPOOL_WEB_CLIENT_SECREAT = "142iiajq307umm9fjf9i1pvps0dtpl0i7rngph0bt68u064gsvjq";
+    var CHILD_USERPOOL_DOMAIN_URL = "https://child-pool-dev.auth.ap-south-1.amazoncognito.com"
+    var PROVIDER_NAME = "child-pool"
+
+
+    resources.addCfnResource({
+        type : "AWS::Cognito::UserPoolIdentityProvider",
+        properties : {
+            "AttributeMapping" : {
+                "email": "email",
+                "email_verified":"email_verified",
+                "phone_number":"phone_number",
+                "phone_number_verified":"phone_number_verified",
+                // "sub":"userName"
+              },
+            // "IdpIdentifiers" : [ "String" ],
+            "ProviderDetails" : {
+                "client_id": `${CHILD_USERPOOL_WEB_CLIENT_ID}`,
+                "client_secret": `${CHILD_USERPOOL_WEB_CLIENT_SECREAT}`,
+                "attributes_request_method":"GET",
+                "oidc_issuer":`https://cognito-idp.${REGION}.amazonaws.com/${CHILD_USERPOOL_ID}`,
+                "authorize_scopes": "openid",
+                "authorize_url":`${CHILD_USERPOOL_DOMAIN_URL}/oauth2/authorize`,
+                "token_url":`${CHILD_USERPOOL_DOMAIN_URL}/oauth2/token`,
+                "attributes_url":`${CHILD_USERPOOL_DOMAIN_URL}/oauth2/userInfo`,
+                "jwks_uri":`https://cognito-idp.${REGION}.amazonaws.com/${CHILD_USERPOOL_ID}/.well-known/jwks.json`
+              },
+            "ProviderName" : `${PROVIDER_NAME}`,
+            "ProviderType" : "OIDC",
+            "UserPoolId" : {
+                "Ref": "UserPool"
+              }
+          }
+      },"childUserPoolIdentityProvider");
+
+
+
+
+#child project configuration
+
+
+Using service: Cognito, provided by: awscloudformation
+
+ The current configured provider is Amazon Cognito.
+
+ Do you want to use the default authentication and security configuration? Manual configuration
+ Select the authentication/authorization services that you want to use: User Sign-Up & Sign-In only (Best used with a cloud API only)
+ Provide a friendly name for your resource that will be used to label this category in the project: childuserpool
+ Provide a name for your user pool: childrenprojectda6f690b_userpool_da6f690b
+ Warning: you will not be able to edit these selections.
+ How do you want users to be able to sign in? Email
+ Do you want to add User Pool Groups? No
+ Do you want to add an admin queries API? No
+ Multifactor authentication (MFA) user login options: OFF
+ Email based user registration/forgot password: Enabled (Requires per-user email entry at registration)
+ Specify an email verification subject: Your verification code
+ Specify an email verification message: Your verification code is {####}
+ Do you want to override the default password policy for this User Pool? No
+ Warning: you will not be able to edit these selections.
+ What attributes are required for signing up? Email, Phone Number (This attribute is not supported by Facebook, Login With Amazon, Sign in with Apple.)
+ Specify the app's refresh token expiration period (in days): 1
+ Do you want to specify the user attributes this app can read and write? No
+ Do you want to enable any of the following capabilities?
+ Do you want to use an OAuth flow? Yes
+ What domain name prefix do you want to use? child-pool
+ Enter your redirect signin URI: https://${PARRENT_USER_POOL_DOMAIN}/oauth2/idpresponse
+? Do you want to add another redirect signin URI No
+ Enter your redirect signout URI: http://localhost:3001/
+? Do you want to add another redirect signout URI No
+ Select the OAuth flows enabled for this project. Authorization code grant
+ Select the OAuth scopes enabled for this project. OpenID
+ Select the social providers you want to configure for your user pool:
+? Do you want to configure Lambda Triggers for Cognito? No
+✅ Successfully added auth resource childuserpool locally
+
+✅ Some next steps:
+"amplify push" will build all your local backend resources and provision it in the cloud
+"amplify publish" will build all your local backend and frontend resources (if you have hosting category added) and provision it in the cloud
+
+
+# To get the open id configuration of cognito user pool
+ https://cognito-idp.${REGION}.amazonaws.com/${CHILD_USER_POOL_ID}/.well-known/openid-configuration
+
+
+{"authorization_endpoint":"https://child-pool-dev.auth.ap-south-1.amazoncognito.com/oauth2/authorize",
+"id_token_signing_alg_values_supported":["RS256"],
+"issuer":"https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_IQE2BH0ti",
+"jwks_uri":"https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_IQE2BH0ti/.well-known/jwks.json",
+"response_types_supported":["code","token"],
+"scopes_supported":["openid","email","phone","profile"],
+"subject_types_supported":["public"],
+"token_endpoint":"https://child-pool-dev.auth.ap-south-1.amazoncognito.com/oauth2/token",
+"token_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post"],
+"userinfo_endpoint":"https://child-pool-dev.auth.ap-south-1.amazoncognito.com/oauth2/userInfo"}
+
+#call Back Url for Child Pool
+https://paraent-pool-dev.auth.ap-south-1.amazoncognito.com/oauth2/idpresponse
+
+
+#override auth
+resources.userPoolClientWeb.generateSecret = true;

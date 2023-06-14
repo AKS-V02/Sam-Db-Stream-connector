@@ -210,7 +210,7 @@ Resources:
       DBClusterIdentifier: !Ref dbCluster
       DBInstanceIdentifier: !Sub "${AWS::StackName}-mysql-node-1"
       CopyTagsToSnapshot: true
-      DBInstanceClass: !FindInMap [ ClusterSettings, global, nodeType ]
+      # DBInstanceClass: !FindInMap [ ClusterSettings, global, nodeType ]
       DBParameterGroupName: !Ref pgNodeParams
       Engine: !FindInMap [ ClusterSettings, global, dbEngine ]
       # MonitoringInterval: 1
@@ -229,7 +229,7 @@ Resources:
       DBClusterIdentifier: !Ref dbCluster
       DBInstanceIdentifier: !Sub "${AWS::StackName}-mysql-node-2"
       CopyTagsToSnapshot: true
-      DBInstanceClass: !FindInMap [ ClusterSettings, global, nodeType ]
+      # DBInstanceClass: !FindInMap [ ClusterSettings, global, nodeType ]
       DBParameterGroupName: !Ref pgNodeParams
       Engine: !FindInMap [ ClusterSettings, global, dbEngine ]
       # MonitoringInterval: 1
