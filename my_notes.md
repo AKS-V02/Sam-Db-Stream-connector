@@ -643,7 +643,8 @@ Using service: Cognito, provided by: awscloudformation
           }
       },"childUserPoolIdentityProvider");
 
-
+##userpool client needs to be updated with supported identity provider and call back urls
+//   resources.userPoolClientWeb.supportedIdentityProviders = [ "COGNITO", `${PROVIDER_NAME}` ];
 
 
 #child project configuration
